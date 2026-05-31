@@ -1,14 +1,25 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 
 public class DayNightSystem : MonoBehaviour
 {
-
+    [Header("Time system")]
     [SerializeField] private TMP_Text timeText;
 
-    public GameObject sunLight;
+    // public GameObject sunLight;
+    [Header("Lightning system")]
+    public GameObject NightLightSet;
+    private List<LightData> NightLights = new List<LightData>();
+    public GameObject DayLightSet;
+    private List<LightData> DayLights = new List<LightData>();
+    private bool _islightStable = false;
+    public bool DEBUG_OVERRIDE_STATE_CHANGE = false;
+    private bool _debug_change = false;
+    public float timeOfLightChange;
     [Header("Check interval")]
     [SerializeField] private float checkIntervalSeconds = 60f;
 
@@ -27,7 +38,35 @@ public class DayNightSystem : MonoBehaviour
     private int _lastHour;
     private float _timer;
 
-    void Start() => Check();
+    void Start()
+    {
+        Check();
+        DayLights = new List<LightData>();
+        DayLights = DayLightSet.GetComponentsInChildren<LightData>().ToList();
+        NightLights = new List<LightData>();
+        NightLights = NightLightSet.GetComponentsInChildren<LightData>().ToList();
+        if (currentState == DayState.Night)
+        {
+            _islightStable = true;
+            NightLightSet.SetActive(true);
+            DayLightSet.SetActive(true);
+            foreach (LightData Light in DayLights)
+            {
+                Light.light.intensity = 0;
+            }
+        }
+        else
+        {
+            _islightStable = true;
+            DayLightSet.SetActive(true);
+            NightLightSet.SetActive(true);
+            foreach (LightData Light in NightLights)
+            {
+                Light.light.intensity = 0;
+            }
+        }
+    }
+    
 
     void Update()
     {
@@ -42,13 +81,72 @@ public class DayNightSystem : MonoBehaviour
 
         // 0h = -90 (below horizon), 12h = 90 (zenith), 24h = -90
         float angle = (hour / 24f) * 360f - 90f;
-        if (sunLight != null)
-            sunLight.transform.rotation = Quaternion.Euler(angle, 170f, 0f);
-        else
-        {
-            Debug.LogError("DayNightSystem: sunLight isn't setted up");
-        }
+        // if (sunLight != null)
+        //     sunLight.transform.rotation = Quaternion.Euler(angle, 170f, 0f);
+        // else
+        // {
+        //     Debug.LogError("DayNightSystem: sunLight isn't setted up");
+        // }
         timeText.text = now.ToString("HH:mm");
+        if (DEBUG_OVERRIDE_STATE_CHANGE != _debug_change)
+        {
+            _islightStable = false;
+            _debug_change = DEBUG_OVERRIDE_STATE_CHANGE;
+        }
+        
+        if (_islightStable  == false)
+        {
+            if (currentState == DayState.Night || (DEBUG_OVERRIDE_STATE_CHANGE && currentState != DayState.Night))
+            {
+                foreach (LightData daylight in DayLights)
+                {
+                    daylight.light.intensity = Mathf.Lerp(
+                        daylight.light.intensity,
+                        0f,
+                        1f - Mathf.Pow(0.01f, Time.deltaTime / timeOfLightChange)
+                    );
+
+                    if (daylight.light.intensity <= 0.001f)
+                    {
+                        daylight.light.intensity = 0f;
+                        _islightStable = true;
+                    }
+                }
+                foreach (LightData nightlight in NightLights)
+                {
+                    nightlight.light.intensity = Mathf.Lerp(
+                        nightlight.light.intensity,
+                        nightlight.intensity,
+                        1f - Mathf.Pow(0.01f, Time.deltaTime / timeOfLightChange)
+                    );
+                }
+            }
+            else
+            {
+                foreach (LightData daylight in DayLights)
+                {
+                    daylight.light.intensity = Mathf.Lerp(
+                        daylight.light.intensity,
+                        daylight.intensity,
+                        1f - Mathf.Pow(0.01f, Time.deltaTime / timeOfLightChange)
+                    );
+                }
+                foreach (LightData nightlight in NightLights)
+                {
+                    nightlight.light.intensity = Mathf.Lerp(
+                        nightlight.light.intensity,
+                        0f,
+                        1f - Mathf.Pow(0.01f, Time.deltaTime / timeOfLightChange)
+                    );
+
+                    if (nightlight.light.intensity <= 0.001f)
+                    {
+                        nightlight.light.intensity = 0f;
+                        _islightStable = true;
+                    }
+                }
+            }
+        }
     }
 
     void Check()
@@ -72,6 +170,8 @@ public class DayNightSystem : MonoBehaviour
             OnStateChanged?.Invoke(currentState);
             OnDayNightChange(currentState);
         }
+        
+        
     }
 
     // Override these in a subclass, or just add your logic directly here
@@ -90,9 +190,11 @@ public class DayNightSystem : MonoBehaviour
 
     protected virtual void OnHourChange(int hour) { }
 
-    protected virtual void HandleNight() { Debug.Log("Night"); }
+    protected virtual void HandleNight() { Debug.Log("Night"); _islightStable = false; }
     protected virtual void HandleDawn() { Debug.Log("Dawn"); }
-    protected virtual void HandleMorning() { Debug.Log("Morning"); }
+    protected virtual void HandleMorning() { Debug.Log("Morning");
+        _islightStable = false;
+    }
     protected virtual void HandleAfternoon() { Debug.Log("Afternoon"); }
     protected virtual void HandleEvening() { Debug.Log("Evening"); }
     protected virtual void HandleDusk() { Debug.Log("Dusk"); }
