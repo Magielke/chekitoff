@@ -21,7 +21,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Glass_Eye
-  m_Shader: {fileID: -6465566751694194690, guid: 8bf3d602b17691c4987863c8b92097cc, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: 1f19b717f5a0e10428dc8d0e3984d26c, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -111,6 +111,7 @@ Material:
     - _DstBlend: 10
     - _DstBlendAlpha: 10
     - _EnvironmentReflections: 1
+    - _Fresnel_Effect: 1
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
