@@ -1152,12 +1152,12 @@ Camera:
   m_ShutterSpeed: 0.005
   m_Aperture: 16
   m_FocusDistance: 10
-  m_FocalLength: 50
+  m_FocalLength: 21.982569
   m_BladeCount: 5
   m_Curvature: {x: 2, y: 11}
   m_BarrelClipping: 0.25
   m_Anamorphism: 0
-  m_SensorSize: {x: 36, y: 24}
+  m_SensorSize: {x: 21.946, y: 16.002}
   m_LensShift: {x: 0, y: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
@@ -1167,7 +1167,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 40
+  field of view: 50
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -2968,7 +2968,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 741bd1aa095f3be409485f2b22c3d4de, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 80ae053fbc075c14da39f434c5b889dc, type: 2}
+      objectReference: {fileID: 2100000, guid: 4497ffa44e7bdb44fa5fd4384af40789, type: 2}
     - target: {fileID: 919132149155446097, guid: 741bd1aa095f3be409485f2b22c3d4de, type: 3}
       propertyPath: m_Name
       value: Floor_tile (11)
@@ -11895,7 +11895,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 741bd1aa095f3be409485f2b22c3d4de, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 80ae053fbc075c14da39f434c5b889dc, type: 2}
+      objectReference: {fileID: 2100000, guid: 4497ffa44e7bdb44fa5fd4384af40789, type: 2}
     - target: {fileID: 919132149155446097, guid: 741bd1aa095f3be409485f2b22c3d4de, type: 3}
       propertyPath: m_Name
       value: Floor_tile (13)
@@ -13270,7 +13270,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 741bd1aa095f3be409485f2b22c3d4de, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 80ae053fbc075c14da39f434c5b889dc, type: 2}
+      objectReference: {fileID: 2100000, guid: 4497ffa44e7bdb44fa5fd4384af40789, type: 2}
     - target: {fileID: 919132149155446097, guid: 741bd1aa095f3be409485f2b22c3d4de, type: 3}
       propertyPath: m_Name
       value: Floor_tile (12)
@@ -13280,6 +13280,56 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 741bd1aa095f3be409485f2b22c3d4de, type: 3}
+--- !u!1 &1584438165
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1584438167}
+  - component: {fileID: 1584438166}
+  m_Layer: 0
+  m_Name: Light Probe Group
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!220 &1584438166
+LightProbeGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1584438165}
+  m_Enabled: 1
+  m_SourcePositions:
+  - {x: 1, y: 1, z: 1}
+  - {x: 1, y: 1, z: -1}
+  - {x: 1, y: -1, z: 1}
+  - {x: 1, y: -1, z: -1}
+  - {x: -1, y: 1, z: 1}
+  - {x: -1, y: 1, z: -1}
+  - {x: -1, y: -1, z: 1}
+  - {x: -1, y: -1, z: -1}
+  m_Dering: 1
+--- !u!4 &1584438167
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1584438165}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1589567703 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 1d211ee6056c647499edd6f742a6f7b5, type: 3}
@@ -15697,7 +15747,7 @@ MonoBehaviour:
     LookAtTarget: {fileID: 1936754258}
     CustomLookAtTarget: 1
   Lens:
-    FieldOfView: 40
+    FieldOfView: 50
     OrthographicSize: 5
     NearClipPlane: 0.3
     FarClipPlane: 1000
@@ -16488,3 +16538,4 @@ SceneRoots:
   - {fileID: 807440057}
   - {fileID: 880161381}
   - {fileID: 1639841367}
+  - {fileID: 1584438167}
