@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "com.ezhex1991.ezsoftbone": "file:E:/CIESZYN STUDIA/LICENCJAT/Test/EZSoftBone-master/EZSoftBone-master",
     "com.unity.ai.navigation": "2.0.8",
     "com.unity.cinemachine": "3.1.6",
     "com.unity.collab-proxy": "2.11.4",
