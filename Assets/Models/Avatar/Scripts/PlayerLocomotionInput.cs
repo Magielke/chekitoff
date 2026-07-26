@@ -11,6 +11,8 @@ public class PlayerLocomotion : MonoBehaviour
     [Header("Movement")]
     public float moveSpeed = 5f;
 
+    public float speedTreshold = 0.01f;
+
     [Header("Character rotation")]
     [Tooltip("Rotation speed (deg/s)")]
     public float rotationSpeed = 720f;
@@ -46,7 +48,7 @@ public class PlayerLocomotion : MonoBehaviour
 
         if (inputDirection.sqrMagnitude < 0.01f)
         {
-            animator.SetFloat("Speed", 0);
+            animator.SetInteger("Speed", 0);
             return;
         }
 
@@ -72,8 +74,12 @@ public class PlayerLocomotion : MonoBehaviour
 
             transform.position += moveDirection * (moveSpeed * Time.deltaTime);
         }
-
-        animator.SetFloat("Speed", moveSpeed * Time.deltaTime);
+        if(moveDirection.magnitude > 0)
+            animator.SetInteger("Speed", 1);
+        else
+        {
+            animator.SetInteger("Speed", 0);
+        }
 
         Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
         transform.rotation = Quaternion.RotateTowards(
