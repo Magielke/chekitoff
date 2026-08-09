@@ -430,7 +430,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 1602.0001, y: 945}
+  m_AnchoredPosition: {x: 1602.0001, y: 942}
   m_SizeDelta: {x: 537.7837, y: 178.6795}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &52476925
@@ -480,8 +480,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 65
-  m_fontSizeBase: 65
+  m_fontSize: 55
+  m_fontSizeBase: 55
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -627,9 +627,17 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: 6fd8592c636874f4d8c67fea50b9351a, type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: 6fd8592c636874f4d8c67fea50b9351a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: 6fd8592c636874f4d8c67fea50b9351a, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 2c47e29fbbf9bb64d877d31353875c8e, type: 2}
+      objectReference: {fileID: 2100000, guid: f55fe078df0312041b2269e7ca946f8a, type: 2}
     - target: {fileID: 919132149155446097, guid: 6fd8592c636874f4d8c67fea50b9351a, type: 3}
       propertyPath: m_Name
       value: Firan 1 (1)
@@ -4527,8 +4535,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 90
-  m_fontSizeBase: 90
+  m_fontSize: 80
+  m_fontSizeBase: 80
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -4565,7 +4573,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: -58.72351, z: 2.8310547, w: 11.881348}
+  m_margin: {x: 0, y: -58.72351, z: 2.8310547, w: 131.72559}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -4595,7 +4603,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 1503.0001, y: 764.99994}
+  m_AnchoredPosition: {x: 1503.0001, y: 757}
   m_SizeDelta: {x: 537.7837, y: 178.6795}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!4 &569774498 stripped
@@ -6459,7 +6467,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 1299.75, y: 842.75, z: 0}
-  m_LocalScale: {x: 100, y: 100, z: 100}
+  m_LocalScale: {x: 117.5129, y: 117.5129, z: 117.5129}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 1639841367}
@@ -11478,9 +11486,17 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: 6fd8592c636874f4d8c67fea50b9351a, type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: 6fd8592c636874f4d8c67fea50b9351a, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 26
+      objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: 6fd8592c636874f4d8c67fea50b9351a, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 2c47e29fbbf9bb64d877d31353875c8e, type: 2}
+      objectReference: {fileID: 2100000, guid: f55fe078df0312041b2269e7ca946f8a, type: 2}
     - target: {fileID: 919132149155446097, guid: 6fd8592c636874f4d8c67fea50b9351a, type: 3}
       propertyPath: m_Name
       value: Firan 1
