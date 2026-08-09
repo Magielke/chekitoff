@@ -427,24 +427,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   audioSource: {fileID: 45484249}
   bars:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 2050949689}
+  - {fileID: 115007034}
+  - {fileID: 1350820575}
+  - {fileID: 1691583565}
+  - {fileID: 1978744096}
+  - {fileID: 2084919647}
+  - {fileID: 286567959}
+  - {fileID: 869551338}
+  - {fileID: 1086930576}
+  - {fileID: 1731281332}
+  - {fileID: 915578372}
+  - {fileID: 956914940}
+  - {fileID: 1136430183}
+  - {fileID: 913105866}
   frequencyFocusWindow: 16
-  amplification: 10000
-  baseHeight: 200
-  fftWindow: 0
+  amplification: 250
+  baseHeight: 1
+  fftWindow: 3
   useDecibels: 0
   spectrumData: []
 --- !u!1001 &45865045
