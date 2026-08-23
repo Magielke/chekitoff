@@ -33,7 +33,7 @@ RenderSettings:
   m_HaloTexture: {fileID: 0}
   m_SpotCookie: {fileID: 10001, guid: 0000000000000000e000000000000000, type: 0}
   m_DefaultReflectionMode: 0
-  m_DefaultReflectionResolution: 128
+  m_DefaultReflectionResolution: 256
   m_ReflectionBounces: 2
   m_ReflectionIntensity: 0
   m_CustomReflection: {fileID: 0}
@@ -93,7 +93,7 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
-  m_LightingDataAsset: {fileID: 0}
+  m_LightingDataAsset: {fileID: 112000000, guid: c815c59e1e513494a9881bdf0ada3f4a, type: 2}
   m_LightingSettings: {fileID: 4890085278179872738, guid: 16fb532a3322e024192671e351aae938, type: 2}
 --- !u!196 &4
 NavMeshSettings:
@@ -4989,7 +4989,7 @@ Transform:
   m_GameObject: {fileID: 464208675}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 3.5, z: 0}
+  m_LocalPosition: {x: 0, y: 1.555, z: 0}
   m_LocalScale: {x: 1.5, y: 1, z: 1.5}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5656,15 +5656,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: ca1127a01d4204246bfaa1e63b9ffd72, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 2
+      value: 1.9999971
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: ca1127a01d4204246bfaa1e63b9ffd72, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: -0.00000047683716
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: ca1127a01d4204246bfaa1e63b9ffd72, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -1
+      value: -0.9997951
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: ca1127a01d4204246bfaa1e63b9ffd72, type: 3}
       propertyPath: m_LocalRotation.w
@@ -14200,7 +14200,7 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: b52bdb257e1f7f149b2cdba7f37ca84d, type: 2}
     - target: {fileID: -678588488315902003, guid: 2fc1f928efbb22948a86b1700f40819c, type: 3}
       propertyPath: m_RenderingLayerMask
-      value: 21
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -678588488315902003, guid: 2fc1f928efbb22948a86b1700f40819c, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
