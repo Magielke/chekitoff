@@ -32,6 +32,7 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
+    - _GI_Intensity: 0
     - _Offset_Z: -0.16
     - _Outline_Width: 2.23
     m_Colors:

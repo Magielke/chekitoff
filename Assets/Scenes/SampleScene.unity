@@ -17,14 +17,14 @@ RenderSettings:
   m_Fog: 1
   m_FogColor: {r: 1, g: 0.8447998, b: 0.6650944, a: 1}
   m_FogMode: 3
-  m_FogDensity: 0.02
+  m_FogDensity: 0.039
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
-  m_AmbientSkyColor: {r: 0, g: 0, b: 0, a: 1}
-  m_AmbientEquatorColor: {r: 0.7830189, g: 0.6910769, b: 0.63897294, a: 1}
-  m_AmbientGroundColor: {r: 0.2735849, g: 0.2735849, b: 0.2735849, a: 1}
+  m_AmbientSkyColor: {r: 0.33018857, g: 0.45897052, b: 1, a: 1}
+  m_AmbientEquatorColor: {r: 1, g: 0.8306986, b: 0.73899364, a: 1}
+  m_AmbientGroundColor: {r: 0.44025147, g: 0.23950785, b: 0.23950785, a: 1}
   m_AmbientIntensity: 0.99
-  m_AmbientMode: 3
+  m_AmbientMode: 1
   m_SubtractiveShadowColor: {r: 0.6069776, g: 0.6870144, b: 0.8301887, a: 1}
   m_SkyboxMaterial: {fileID: 2100000, guid: 8dacb13ae691d7642bd792b95f799763, type: 2}
   m_HaloStrength: 0
@@ -3052,7 +3052,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &287711051
 Transform:
   m_ObjectHideFlags: 0
@@ -3570,7 +3570,7 @@ MonoBehaviour:
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
   m_RenderPostProcessing: 1
-  m_Antialiasing: 0
+  m_Antialiasing: 1
   m_AntialiasingQuality: 2
   m_StopNaN: 0
   m_Dithering: 0
@@ -3734,7 +3734,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &336408794
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4089,10 +4089,10 @@ Light:
     m_Type: 2
     m_Resolution: -1
     m_CustomResolution: -1
-    m_Strength: 0.9
+    m_Strength: 1
     m_Bias: 0.05
     m_NormalBias: 0
-    m_NearPlane: 0.2
+    m_NearPlane: 0.1
     m_CullingMatrixOverride:
       e00: 1
       e01: 0
@@ -4119,7 +4119,7 @@ Light:
     serializedVersion: 2
     m_Bits: 4294967295
   m_RenderingLayerMask: 4294967295
-  m_Lightmapping: 4
+  m_Lightmapping: 1
   m_LightShadowCasterMode: 0
   m_AreaSize: {x: 1, y: 1}
   m_BounceIntensity: 2
@@ -6431,6 +6431,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 410087041}
   - {fileID: 1196724725}
   - {fileID: 1923482484}
   - {fileID: 1485344568}
@@ -6438,7 +6439,6 @@ Transform:
   - {fileID: 1877925549}
   - {fileID: 287711051}
   - {fileID: 336408796}
-  - {fileID: 410087041}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &599206575
@@ -14061,15 +14061,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 6ae22da4f4566e44895c8c8589a3c1ba, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 2
+      value: 1.9999986
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 6ae22da4f4566e44895c8c8589a3c1ba, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: -2.9197855e-22
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 6ae22da4f4566e44895c8c8589a3c1ba, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -6
+      value: -5.999999
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 6ae22da4f4566e44895c8c8589a3c1ba, type: 3}
       propertyPath: m_LocalRotation.w
@@ -18523,7 +18523,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1196724723
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -21313,7 +21313,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1485344568
 Transform:
   m_ObjectHideFlags: 0
@@ -26151,7 +26151,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1877925549
 Transform:
   m_ObjectHideFlags: 0
@@ -26876,7 +26876,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1923482484
 Transform:
   m_ObjectHideFlags: 0
