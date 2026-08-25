@@ -25859,7 +25859,7 @@ ParticleSystemRenderer:
   m_MeshDistribution: 0
   m_SortMode: 0
   m_MinParticleSize: 0
-  m_MaxParticleSize: 0.4
+  m_MaxParticleSize: 0.05
   m_CameraVelocityScale: 0
   m_VelocityScale: 0
   m_LengthScale: 2
@@ -30619,7 +30619,7 @@ Transform:
   m_GameObject: {fileID: 1867074306}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0.79006094, z: -0, w: 0.61302835}
-  m_LocalPosition: {x: 3.08, y: 3.15, z: -5.42}
+  m_LocalPosition: {x: 3.08, y: 3.15, z: -5.14}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
