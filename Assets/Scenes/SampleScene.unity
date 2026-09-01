@@ -989,7 +989,7 @@ GameObject:
   - component: {fileID: 52476926}
   - component: {fileID: 52476925}
   m_Layer: 5
-  m_Name: Text (TMP) (1)
+  m_Name: Text (TMP) (1) (DATE)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1036,8 +1036,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Mon 10/08
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: a31fcb6b6a7fcbf4fa85e36d7a81f09a, type: 2}
-  m_sharedMaterial: {fileID: -5611499841779725769, guid: a31fcb6b6a7fcbf4fa85e36d7a81f09a, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1637,8 +1637,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: K
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: a31fcb6b6a7fcbf4fa85e36d7a81f09a, type: 2}
-  m_sharedMaterial: {fileID: -5611499841779725769, guid: a31fcb6b6a7fcbf4fa85e36d7a81f09a, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2828,8 +2828,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: B
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: a31fcb6b6a7fcbf4fa85e36d7a81f09a, type: 2}
-  m_sharedMaterial: {fileID: -5611499841779725769, guid: a31fcb6b6a7fcbf4fa85e36d7a81f09a, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -5077,8 +5077,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: L
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: a31fcb6b6a7fcbf4fa85e36d7a81f09a, type: 2}
-  m_sharedMaterial: {fileID: -5611499841779725769, guid: a31fcb6b6a7fcbf4fa85e36d7a81f09a, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -16336,8 +16336,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: J
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: a31fcb6b6a7fcbf4fa85e36d7a81f09a, type: 2}
-  m_sharedMaterial: {fileID: -5611499841779725769, guid: a31fcb6b6a7fcbf4fa85e36d7a81f09a, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -16811,7 +16811,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1063492752
 Transform:
   m_ObjectHideFlags: 0
@@ -17039,7 +17039,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1069126723
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -22650,8 +22650,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   timeText: {fileID: 564214662}
+  dateText: {fileID: 52476925}
+  format: ddd dd/MM
   NightLightSet: {fileID: 55269592}
+  NightLights: []
   DayLightSet: {fileID: 580412350}
+  DayLights: []
   DEBUG_OVERRIDE_STATE_CHANGE: 0
   timeOfLightChange: 2
   checkIntervalSeconds: 60

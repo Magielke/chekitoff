@@ -1,7 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Collections;
+using System.Globalization;
+using System.Linq;
 using System.Linq;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -9,13 +13,17 @@ public class DayNightSystem : MonoBehaviour
 {
     [Header("Time system")]
     [SerializeField] private TMP_Text timeText;
+    [SerializeField] private TMP_Text dateText;
+    [SerializeField] private string format = "ddd dd/MM";
+    
+    
 
     // public GameObject sunLight;
     [Header("Lightning system")]
     public GameObject NightLightSet;
-    private List<LightData> NightLights = new List<LightData>();
+    public List<LightData> NightLights = new List<LightData>();
     public GameObject DayLightSet;
-    private List<LightData> DayLights = new List<LightData>();
+    public List<LightData> DayLights = new List<LightData>();
     private bool _islightStable = false;
     public bool DEBUG_OVERRIDE_STATE_CHANGE = false;
     private bool _debug_change = false;
@@ -37,33 +45,39 @@ public class DayNightSystem : MonoBehaviour
     private DayState _lastState;
     private int _lastHour;
     private float _timer;
+    private DateTime showDate;
 
+    private List<LightData> CollectLights(GameObject root)
+    {
+        var result = new List<LightData>();
+        if (root == null)
+        {
+            return result;
+        }
+        foreach (Light light in root.GetComponentsInChildren<Light>(true))
+        {
+            LightData lightData = light.GetComponent<LightData>();
+            if (lightData == null)
+            {
+                lightData = light.gameObject.AddComponent<LightData>();
+            }
+
+            lightData.light = light;
+            lightData.intensity = light.intensity;
+            result.Add(lightData);
+        }
+        return result;
+    }
     void Start()
     {
         Check();
-        DayLights = new List<LightData>();
-        DayLights = DayLightSet.GetComponentsInChildren<LightData>().ToList();
-        NightLights = new List<LightData>();
-        NightLights = NightLightSet.GetComponentsInChildren<LightData>().ToList();
-        if (currentState == DayState.Night)
+        DayLights = CollectLights(DayLightSet);
+        NightLights = CollectLights(NightLightSet);
+     
+        var toDim = (currentState == DayState.Night) ?        DayLights : NightLights;
+        foreach (LightData light in toDim)
         {
-            _islightStable = true;
-            NightLightSet.SetActive(true);
-            DayLightSet.SetActive(true);
-            foreach (LightData Light in DayLights)
-            {
-                Light.light.intensity = 0;
-            }
-        }
-        else
-        {
-            _islightStable = true;
-            DayLightSet.SetActive(true);
-            NightLightSet.SetActive(true);
-            foreach (LightData Light in NightLights)
-            {
-                Light.light.intensity = 0;
-            }
+            light.light.intensity = 0f;
         }
     }
     
@@ -234,5 +248,27 @@ public class DayNightSystem : MonoBehaviour
     {
         GetSunTimes(currentMonth, out int sunrise, out int sunset);
         return Mathf.Clamp01((float)(currentHour - sunrise) / (sunset - sunrise));
+    }
+
+    private void OnEnable()
+    {
+        Refresh();
+        StartCoroutine(WatchForDateChange());
+    }
+
+    private IEnumerator WatchForDateChange()
+    {
+        var wait = new WaitForSeconds(1f);
+        while (true)
+        {
+            yield return wait;
+            if (DateTime.Now.Date != showDate) Refresh();
+        }
+    }
+
+    private void Refresh()
+    {
+        showDate = DateTime.Now.Date;
+        dateText.text = showDate.ToString(format, CultureInfo.InvariantCulture);
     }
 }
