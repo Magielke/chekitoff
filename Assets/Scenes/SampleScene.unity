@@ -22798,9 +22798,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4d532566f85d1d48a61dc069a92c29c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Minutes: 10
-  Seconds: 0
-  Text: {fileID: 904041771}
+  _DefaultWorkMinutes: 25
+  _DefaultBreakMinutes: 5
+  _loopPhases: 1
+  _timeText: {fileID: 0}
+  _stateText: {fileID: 0}
+  _workLabel: 
+  _breakLabel: PRZERWA
+  _idleLabel: '-'
+  _backgroundRenderer: {fileID: 0}
+  _colorProperty: White
+  _backgroundGraphic: {fileID: 0}
+  _workColor: {r: 0, g: 0, b: 0, a: 0}
+  _breakColor: {r: 0, g: 0, b: 0, a: 0}
+  _idleColor: {r: 0, g: 0, b: 0, a: 0}
+  _tintText: 0
+  _cameraControls: []
+  _freeCursorOnBreak: 1
+  _gameplayCamera: {fileID: 0}
+  _playerAnimator: {fileID: 0}
+  _breakBoolParam: Focus
+  _phaseTriggerParam: Break
 --- !u!1 &1642651192 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 20e38d76bc6aac44783f29a996d8d5cb, type: 3}
@@ -31070,6 +31088,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   interactionColor: {r: 0, g: 0, b: 1, a: 1}
+  _interactKey: 101
+  timer: {fileID: 0}
 --- !u!54 &1875807390
 Rigidbody:
   m_ObjectHideFlags: 0
