@@ -8,7 +8,7 @@ AnimatorState:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Gumka_Idle_001 1
-  m_Speed: 1.33
+  m_Speed: 1
   m_CycleOffset: 0
   m_Transitions:
   - {fileID: -4876036711545616272}
@@ -316,7 +316,7 @@ AnimatorState:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Gumka|Walk_cycle
-  m_Speed: 1
+  m_Speed: 1.33
   m_CycleOffset: 0
   m_Transitions:
   - {fileID: 6678625218592481177}
