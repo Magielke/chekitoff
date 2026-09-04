@@ -7,6 +7,7 @@ public class DeskWorkstation : MonoBehaviour
     [Header("Gracz")]
     [SerializeField] private Animator _playerAnimator;
     [SerializeField] private string _sitBoolParam = "IsSitting";
+    [SerializeField] private Transform _playerRoot;
     [SerializeField] private Transform _seatAnchor;
     [SerializeField] private bool _snapToSeat = true;
     [SerializeField] private CharacterController _playerController;
@@ -36,7 +37,7 @@ public class DeskWorkstation : MonoBehaviour
     private bool _movedToSeat;
     private Vector3 _returnPos;
     private Quaternion _returnRot;
-    
+    private bool _hadRootMotion;
     public bool IsSeated => _seated;
     public bool IsBusy => _busy;
     private void OnEnable()
@@ -79,14 +80,14 @@ public class DeskWorkstation : MonoBehaviour
         SwitchCamera(true);
 
         _movedToSeat = false;
-        if (_snapToSeat && _seatAnchor && _playerAnimator)
+        if (_snapToSeat && _seatAnchor && _playerRoot)
         {
-            var t = _playerAnimator.transform;
-            _returnPos = t.position;
-            _returnRot = t.rotation;
+            _returnPos = _playerRoot.position;
+            _returnRot = _playerRoot.rotation;
             _movedToSeat = true;
-            yield return MoveTo(t, _seatAnchor.position,_seatAnchor.rotation, 0.25f);
+            yield return MoveTo(_playerRoot, _seatAnchor.position,_seatAnchor.rotation, 0.25f);
         }
+
 
         SetAnimatorSitting(true);
         yield return new WaitForSeconds(_sitDuration);
@@ -114,11 +115,21 @@ public class DeskWorkstation : MonoBehaviour
         if (_movedToSeat && _playerAnimator)
         {
             yield return MoveTo(_playerAnimator.transform, _returnPos,_returnRot, 0.25f);
+            
+            if (_playerController )
+            {
+                _playerController.enabled = true;
+                yield return null;                    
+                Vector3 p = _playerRoot.position;
+                p.y = 0;                  
+                _playerRoot.position = p;
+            }
             _movedToSeat = false;
         }
         
         SwitchCamera(false);
         SetCursor(true);
+        SetControls(true);
         _seated = false;
         _busy = false;
     }
@@ -145,9 +156,9 @@ public class DeskWorkstation : MonoBehaviour
     private void SetControls(bool enabled)
     {
         if(_movementScripts != null)
-        foreach(var b in _movementScripts) if(b) b.enabled = enabled;
+            foreach(var b in _movementScripts) if(b) b.enabled = enabled;
         if(_cameraControls != null)
-        foreach(var b in _cameraControls) if(b) b.enabled = enabled;
+            foreach(var b in _cameraControls) if(b) b.enabled = enabled;
     }
 
     private void SwitchCamera(bool desk)
