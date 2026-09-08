@@ -18,7 +18,7 @@ Material:
   - _IS_CLIPPING_OFF
   - _IS_OUTLINE_CLIPPING_NO
   - _OUTLINE_NML
-  m_LightmapFlags: 6
+  m_LightmapFlags: 2
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
@@ -41,7 +41,7 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 0.9967726, b: 0.995283, a: 1}
     - _Color: {r: 1, g: 0.9967726, b: 0.99528295, a: 1}
-    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _EmissionColor: {r: 0.14465404, g: 0.14465404, b: 0.14465404, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
 --- !u!114 &8865424895401388629

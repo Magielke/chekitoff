@@ -7,10 +7,10 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: New Material 12
+  m_Name: New Material 20
   m_Shader: {fileID: 4800000, guid: 933532a4fcc9baf4fa0491de14d08ed7, type: 3}
-  m_Parent: {fileID: 2100000, guid: 799c4ca8b56fec5469368b1dbffca432, type: 2}
-  m_ModifiedSerializedProperties: 0
+  m_Parent: {fileID: 2100000, guid: b4cc856e216b1c34988f60ca359e3320, type: 2}
+  m_ModifiedSerializedProperties: 16
   m_ValidKeywords: []
   m_InvalidKeywords:
   - _EMISSIVE_SIMPLE
@@ -32,14 +32,16 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
-    - _Offset_Z: -0.16
-    - _Outline_Width: 2.23
+    - _OUTLINE: 1
+    - _Offset_Z: -0.28
+    - _Outline_Width: 1.04
+    - _Smoothness: 0.5
     m_Colors:
-    - _1st_ShadeColor: {r: 0.27850792, g: 0.4339623, b: 0.2661089, a: 1}
-    - _2nd_ShadeColor: {r: 0.3532995, g: 0.59119487, b: 0.28816098, a: 1}
-    - _BaseColor: {r: 0.5523471, g: 0.7798742, b: 0.502749, a: 1}
-    - _Color: {r: 0.5523471, g: 0.7798742, b: 0.50274897, a: 1}
-    - _Outline_Color: {r: 0.29611534, g: 0.19607845, b: 0.42352942, a: 1}
+    - _1st_ShadeColor: {r: 0.254717, g: 0.18322802, b: 0.14538093, a: 1}
+    - _2nd_ShadeColor: {r: 0.2924528, g: 0.21820356, b: 0.20830366, a: 1}
+    - _BaseColor: {r: 0.48113197, g: 1, b: 0.89068943, a: 1}
+    - _Color: {r: 0.4811319, g: 1, b: 0.89068943, a: 1}
+    - _Outline_Color: {r: 0.2264151, g: 0.12329721, b: 0.06941973, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
 --- !u!114 &8865424895401388629
