@@ -88,6 +88,7 @@ public class PomodoroSessionUI : MonoBehaviour
         }
     }
 
+    
     private void OnDestroy()
     {
         if (_timer)
