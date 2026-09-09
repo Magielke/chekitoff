@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 0.99
   m_AmbientMode: 1
   m_SubtractiveShadowColor: {r: 0.6069776, g: 0.6870144, b: 0.8301887, a: 1}
-  m_SkyboxMaterial: {fileID: 2100000, guid: 8dacb13ae691d7642bd792b95f799763, type: 2}
+  m_SkyboxMaterial: {fileID: 2100000, guid: 72e0dfb2442ee0e44baf182b9f31ae0c, type: 2}
   m_HaloStrength: 0
   m_FlareStrength: 0
   m_FlareFadeSpeed: 3
@@ -37,7 +37,7 @@ RenderSettings:
   m_ReflectionBounces: 2
   m_ReflectionIntensity: 0
   m_CustomReflection: {fileID: 0}
-  m_Sun: {fileID: 410087040}
+  m_Sun: {fileID: 0}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -672,7 +672,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: 50876936c7570cd43960dbf6cd5088c8, type: 3}
+  m_Resource: {fileID: 8300000, guid: 56d4c02ded09f6e4a9b0d34d540e65a0, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 0.112
   m_Pitch: 1
@@ -4829,7 +4829,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &390569290
 Transform:
   m_ObjectHideFlags: 0
@@ -5209,7 +5209,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!108 &410087040
 Light:
   m_ObjectHideFlags: 0
@@ -7865,7 +7865,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &580412351
 Transform:
   m_ObjectHideFlags: 0
@@ -26915,8 +26915,8 @@ MonoBehaviour:
   NightLights: []
   DayLightSet: {fileID: 580412350}
   DayLights: []
-  DEBUG_OVERRIDE_STATE_CHANGE: 0
   timeOfLightChange: 2
+  DEBUG_OVERRIDE_STATE_CHANGE: 0
   checkIntervalSeconds: 60
   currentHour: 0
   currentMonth: 0
@@ -26927,6 +26927,9 @@ MonoBehaviour:
   OnHourChanged:
     m_PersistentCalls:
       m_Calls: []
+  _skyboxMaterial: {fileID: 2100000, guid: 72e0dfb2442ee0e44baf182b9f31ae0c, type: 2}
+  _blendSpeed: 1
+  _instantOnStart: 1
 --- !u!114 &1639841364
 MonoBehaviour:
   m_ObjectHideFlags: 0
