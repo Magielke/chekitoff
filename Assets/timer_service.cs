@@ -56,7 +56,7 @@ public class timer_service : MonoBehaviour
 
     public PomodoroPhase phase => _phase;
     public float RemainingTime => _remainingTime;
-    public float PhaseDuration => _phase == PomodoroPhase.Work ? _workDuration : _timerTemp;
+    public float PhaseDuration => _phase == PomodoroPhase.Work ? _workDuration : _breakDuration;
     public bool IsRunning => _running;
     public string TimeString => Format(_remainingTime);
 
@@ -109,7 +109,7 @@ public class timer_service : MonoBehaviour
 
     public void SkipPhase()
     {
-        if(_phase == PomodoroPhase.Idle)
+        if(_phase != PomodoroPhase.Idle)
             HandlePhaseEnd();
     }
 
@@ -226,7 +226,7 @@ public class timer_service : MonoBehaviour
 
     private void SetAnimatorBreak(bool onBreak)
     {
-        if (_playerAnimator || string.IsNullOrEmpty(_breakBoolParam)) return;
+        if (!_playerAnimator || string.IsNullOrEmpty(_breakBoolParam)) return;
         _playerAnimator.SetBool(_breakBoolParam, onBreak);
     }
 }
