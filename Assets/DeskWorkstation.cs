@@ -12,25 +12,24 @@ public class DeskWorkstation : MonoBehaviour
     [SerializeField] private bool _snapToSeat = true;
     [SerializeField] private CharacterController _playerController;
 
-    [Header("Sterowanie wyłączane na czas siedzienia")] [SerializeField]
-    private Behaviour[] _movementScripts;
-
+    [Header("Sterowanie wyłączane na czas siedzenia")]
+    [SerializeField] private Behaviour[] _movementScripts;
     [SerializeField] private Behaviour[] _cameraControls;
 
-    [Header("Kamery")] [SerializeField] private CinemachineCamera _gameplayCamera;
+    [Header("Kamery")]
+    [SerializeField] private CinemachineCamera _gameplayCamera;
     [SerializeField] private CinemachineCamera _deskCamera;
     [SerializeField] private int _activePriority = 20;
     [SerializeField] private int _inactivePriority = 0;
 
-    [Header("Czasy animacji (s)")] [SerializeField]
-    private float _sitDuration = 1.0f;
+    [Header("Czasy animacji (s)")]
+    [SerializeField] private float _sitDuration = 1.0f;
     [SerializeField] private float _standDuration = 1.0f;
     [SerializeField] private float _snapDuration = 0.25f;
 
-    [Header("Timer")] [SerializeField] private timer_service _timer;
-    [SerializeField] private PomodoroSetupUI _setupUI;
-    [SerializeField] private PomodoroSessionUI _sessionUI;
-    [SerializeField] private bool _standUpOnFinish = false;
+    [Header("Timer i UI")]
+    [SerializeField] private timer_service _timer;
+    [SerializeField] private GameObject _timerUiRoot;   // rodzic UI_ACTIVE + UI_INACTIVE
 
     private bool _seated;
     private bool _busy;
@@ -38,19 +37,16 @@ public class DeskWorkstation : MonoBehaviour
     private Vector3 _returnPos;
     private Quaternion _returnRot;
     private bool _hadRootMotion;
+
     public bool IsSeated => _seated;
     public bool IsBusy => _busy;
-    private void OnEnable()
+
+    private void Start()
     {
-        if(_timer)_timer.OnFinished += HandleTimerFinished;
+        if (_timerUiRoot) _timerUiRoot.SetActive(false);
     }
 
-    private void OnDisable()
-    {
-        if(_timer)_timer.OnFinished -= HandleTimerFinished;
-    }
-    
-    //Wywołanie z interakcji
+    // ---------- wywołanie z interakcji (klawisz E) ----------
 
     public void Interact()
     {
@@ -70,14 +66,18 @@ public class DeskWorkstation : MonoBehaviour
         if (_busy || !_seated) return;
         StartCoroutine(StandRoutine());
     }
-    
-    //Sekwencje
+
+    // ---------- sekwencje ----------
+
     private IEnumerator SitRoutine()
     {
         _busy = true;
+
         SetControls(false);
         SetCursor(false);
         SwitchCamera(true);
+
+        yield return null;
 
         _movedToSeat = false;
         if (_snapToSeat && _seatAnchor && _playerRoot)
@@ -85,86 +85,84 @@ public class DeskWorkstation : MonoBehaviour
             _returnPos = _playerRoot.position;
             _returnRot = _playerRoot.rotation;
             _movedToSeat = true;
-            yield return MoveTo(_playerRoot, _seatAnchor.position,_seatAnchor.rotation, 0.25f);
+            yield return MoveTo(_playerRoot, _seatAnchor.position, _seatAnchor.rotation,
+                                _snapDuration, restoreController: false);
         }
 
+        if (_playerAnimator)
+        {
+            _hadRootMotion = _playerAnimator.applyRootMotion;
+            _playerAnimator.applyRootMotion = false;
+        }
 
         SetAnimatorSitting(true);
         yield return new WaitForSeconds(_sitDuration);
-        
+
         _seated = true;
         _busy = false;
 
         SetCursor(true);
-        if (_setupUI) _setupUI.Show();
+        if (_timerUiRoot) _timerUiRoot.SetActive(true);
     }
 
     private IEnumerator StandRoutine()
     {
         _busy = true;
 
-        if (_setupUI) _setupUI.Hide();
-        if (_sessionUI) _sessionUI.Hide();
-        if(_timer) _timer.Stop();
-        
+        if (_timerUiRoot) _timerUiRoot.SetActive(false);
+        if (_timer) _timer.Stop();
+
         SetCursor(false);
         SetAnimatorSitting(false);
         yield return new WaitForSeconds(_standDuration);
 
-
-        if (_movedToSeat && _playerAnimator)
+        if (_movedToSeat && _playerRoot)
         {
-            yield return MoveTo(_playerAnimator.transform, _returnPos,_returnRot, 0.25f);
-            
-            if (_playerController )
+            yield return MoveTo(_playerRoot, _returnPos, _returnRot,
+                                _snapDuration, restoreController: false);
+
+            if (_playerController)
             {
                 _playerController.enabled = true;
-                yield return null;                    
+                yield return null;
                 Vector3 p = _playerRoot.position;
-                p.y = 0;                  
+                p.y = _returnPos.y;
                 _playerRoot.position = p;
             }
+
             _movedToSeat = false;
         }
-        
+
+        // gdyby snap był wyłączony, a controller mimo to został wyłączony
+        if (_playerController && !_playerController.enabled)
+            _playerController.enabled = true;
+
+        if (_playerAnimator) _playerAnimator.applyRootMotion = _hadRootMotion;
+
         SwitchCamera(false);
-        SetCursor(true);
         SetControls(true);
+
         _seated = false;
         _busy = false;
+
+        SetCursor(false);
     }
 
-    public void BeginTimer(float workMinutes, float breakMinutes, bool loop)
-    {
-        if (!_timer) return;
-        _timer.SetLoop(loop);
-        _timer.StartTimer(workMinutes, breakMinutes);
-        if (_sessionUI) _sessionUI.Show();
-    }
+    // ---------- pomocnicze ----------
 
-    private void HandleTimerFinished()
-    {
-        if(_standUpOnFinish) StandUp();
-        else
-        {
-            if (_sessionUI) _sessionUI.Hide();
-            if (_setupUI) _setupUI.Show();
-        }
-    }
-    
-    //Pomocnicze
     private void SetControls(bool enabled)
     {
-        if(_movementScripts != null)
-            foreach(var b in _movementScripts) if(b) b.enabled = enabled;
-        if(_cameraControls != null)
-            foreach(var b in _cameraControls) if(b) b.enabled = enabled;
+        if (_movementScripts != null)
+            foreach (var b in _movementScripts) if (b) b.enabled = enabled;
+
+        if (_cameraControls != null)
+            foreach (var b in _cameraControls) if (b) b.enabled = enabled;
     }
 
     private void SwitchCamera(bool desk)
     {
-        if(_gameplayCamera) _gameplayCamera.Priority = desk? _inactivePriority : _activePriority;
-        if(_deskCamera) _deskCamera.Priority = desk? _activePriority : _inactivePriority;
+        if (_gameplayCamera) _gameplayCamera.Priority = desk ? _inactivePriority : _activePriority;
+        if (_deskCamera)     _deskCamera.Priority     = desk ? _activePriority   : _inactivePriority;
     }
 
     private void SetCursor(bool free)
@@ -175,26 +173,30 @@ public class DeskWorkstation : MonoBehaviour
 
     private void SetAnimatorSitting(bool sitting)
     {
-        if(_playerAnimator && !string.IsNullOrEmpty(_sitBoolParam)) _playerAnimator.SetBool(_sitBoolParam, sitting);
+        if (_playerAnimator && !string.IsNullOrEmpty(_sitBoolParam))
+            _playerAnimator.SetBool(_sitBoolParam, sitting);
     }
 
-    private IEnumerator MoveTo(Transform t, Vector3 pos, Quaternion rot, float duration)
+    private IEnumerator MoveTo(Transform t, Vector3 pos, Quaternion rot,
+                               float duration, bool restoreController)
     {
-        bool hadControler = _playerController && _playerController.enabled;
-        if(hadControler) _playerController.enabled = false;
+        bool had = _playerController && _playerController.enabled;
+        if (had) _playerController.enabled = false;
+
         Vector3 p0 = t.position;
         Quaternion r0 = t.rotation;
-        for (float e = 0f; e <= duration; e += Time.deltaTime)
+
+        for (float e = 0f; e < duration; e += Time.deltaTime)
         {
             float k = e / duration;
             t.position = Vector3.Lerp(p0, pos, k);
             t.rotation = Quaternion.Slerp(r0, rot, k);
             yield return null;
         }
+
         t.position = pos;
         t.rotation = rot;
-        
-        if(hadControler) _playerController.enabled = true;
+
+        if (had && restoreController) _playerController.enabled = true;
     }
-    
 }
