@@ -13,7 +13,6 @@ public class DayNightSystem : MonoBehaviour
     [SerializeField] private TMP_Text dateText;
     [SerializeField] private string format = "ddd dd/MM";
     
-    
 
     // public GameObject sunLight;
     [Header("Lightning system")]
