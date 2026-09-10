@@ -174,10 +174,10 @@ MonoBehaviour:
     m_Value: 0
   paperWhite:
     m_OverrideState: 1
-    m_Value: 234
+    m_Value: 220
   detectBrightnessLimits:
     m_OverrideState: 1
-    m_Value: 1
+    m_Value: 0
   minNits:
     m_OverrideState: 1
     m_Value: 0.005
@@ -269,7 +269,7 @@ MonoBehaviour:
     m_Value: 1
   maxSteps:
     m_OverrideState: 1
-    m_Value: 61
+    m_Value: 18
   blurIterations:
     m_OverrideState: 0
     m_Value: 1
@@ -347,25 +347,25 @@ MonoBehaviour:
   active: 1
   shadows:
     m_OverrideState: 1
-    m_Value: {x: 0.7698661, y: 0.8618304, z: 1, w: 0.21893111}
+    m_Value: {x: 1, y: 0.94587404, z: 0.9565897, w: 0.029908815}
   midtones:
     m_OverrideState: 1
-    m_Value: {x: 1, y: 1, z: 1, w: 0.09395529}
+    m_Value: {x: 1, y: 0.9244493, z: 0.9363642, w: 0.09395529}
   highlights:
     m_OverrideState: 1
     m_Value: {x: 1, y: 0.10403205, z: 0, w: 0.29657084}
   shadowsStart:
-    m_OverrideState: 0
+    m_OverrideState: 1
     m_Value: 0
   shadowsEnd:
-    m_OverrideState: 0
-    m_Value: 0.3
+    m_OverrideState: 1
+    m_Value: 2.45
   highlightsStart:
     m_OverrideState: 1
-    m_Value: 0.77
+    m_Value: 0
   highlightsEnd:
     m_OverrideState: 1
-    m_Value: 2.39
+    m_Value: 7.34
 --- !u!114 &8041833780341180040
 MonoBehaviour:
   m_ObjectHideFlags: 3
