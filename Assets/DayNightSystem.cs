@@ -12,6 +12,12 @@ public class DayNightSystem : MonoBehaviour
     [SerializeField] private TMP_Text timeText;
     [SerializeField] private TMP_Text dateText;
     [SerializeField] private string format = "ddd dd/MM";
+
+
+    [Header("Obrót")] [SerializeField] private Transform _rotatingDisk;
+    [SerializeField] private Vector3 _rotatingDiskAxis = Vector3.up;
+    [SerializeField] private float _rotationDuration = 3f;
+    [SerializeField] private bool _rotateShortestPath = true;
     
 
     // public GameObject sunLight;
@@ -47,6 +53,9 @@ public class DayNightSystem : MonoBehaviour
 
     private bool _isLightStable = false;
     private bool _debug_change = false;
+
+    private Quaternion _rotFrom, _rotTo;
+    private float _rotTimer = -1f;
     
     private DayState _lastState;
     private int _lastHour;
@@ -100,6 +109,7 @@ public class DayNightSystem : MonoBehaviour
         OnDayNightChange(currentState);
         
         ApplySkybox(WantNight(),_instantOnStart);
+        ApplyRotationInstant(WantNight());
     }
 
     private bool WantNight()
@@ -122,7 +132,43 @@ public class DayNightSystem : MonoBehaviour
             }
         }
     }
-    
+
+    void BeginRotation()
+    {
+        if(!_rotatingDisk) return;
+        
+        _rotFrom = _rotatingDisk.rotation;
+        _rotTo = _rotFrom * Quaternion.AngleAxis(180f, _rotatingDiskAxis);
+        _rotTimer = 0f;
+    }
+
+    void UpdateRotation()
+    {
+        if(!_rotatingDisk || _rotTimer < 0f) return;
+        _rotTimer += Time.deltaTime;
+        float t = Mathf.Clamp01(_rotTimer/Mathf.Max(0.01f,_rotationDuration));
+        
+        float k = Mathf.SmoothStep(0f, 1f, t);
+        Quaternion rot = _rotateShortestPath
+            ? Quaternion.Slerp(_rotFrom, _rotTo, k)
+            : Quaternion.AngleAxis(180f * k, _rotatingDiskAxis) * _rotFrom;
+        _rotatingDisk.rotation = rot;
+
+        if (t >= 1f)
+        {
+            _rotatingDisk.rotation = _rotTo;
+            _rotTimer = -1f;
+        }
+    }
+
+    void ApplyRotationInstant(bool wantNight)
+    {
+        if(!_rotatingDisk) return;
+        if(!wantNight)
+            _rotatingDisk.rotation = _rotatingDisk.rotation * Quaternion.AngleAxis(180f,_rotatingDiskAxis);
+
+        _rotTimer = -1f;
+    }
     void Update()
     {
         _timer += Time.deltaTime;
@@ -139,6 +185,8 @@ public class DayNightSystem : MonoBehaviour
         {
             _debug_change = DEBUG_OVERRIDE_STATE_CHANGE;
             _isLightStable = false;
+            UpdateRotation();
+            OnDayNightChange(WantNight() ? DayState.Night : DayState.Day);
         }
         
         bool wantNight = WantNight();
@@ -146,6 +194,12 @@ public class DayNightSystem : MonoBehaviour
 
         UpdateLights(wantNight);
         UpdateSkyboxBlend();
+        UpdateRotation();
+    }
+
+    public void ToggleDebugOverride()
+    {
+        DEBUG_OVERRIDE_STATE_CHANGE = !DEBUG_OVERRIDE_STATE_CHANGE;
     }
 
     private void UpdateLights(bool wantNight)
@@ -235,6 +289,7 @@ public class DayNightSystem : MonoBehaviour
     protected virtual void OnDayNightChange(DayState newState)
     {
         _isLightStable = false;
+        BeginRotation();
         switch (newState)
         {
             case DayState.Night: HandleNight(); break;
