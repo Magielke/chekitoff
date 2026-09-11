@@ -254,6 +254,8 @@ public class PomodoroSessionUI : MonoBehaviour
             return;
         }
 
+        if (TodoItemUI.AnyEditing) return;
+        
         // INACTIVE - strzałki działają cały czas
         if (Input.GetKeyDown(_tabKey)) SelectTab(!_breakTabSelected);
 
