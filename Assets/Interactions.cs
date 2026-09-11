@@ -13,6 +13,9 @@ public class Interactions : MonoBehaviour
 
     void Update()
     {
+        if (TodoItemUI.AnyEditing)
+                return;
+        
         if (_occupiedDesk && !_occupiedDesk.IsSeated && !_occupiedDesk.IsBusy)
             _occupiedDesk = null;
         if (!Input.GetKeyDown(_interactKey)) return;
