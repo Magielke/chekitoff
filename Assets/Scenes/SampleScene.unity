@@ -913,7 +913,7 @@ MonoBehaviour:
   - {fileID: 1136430183}
   - {fileID: 913105866}
   frequencyFocusWindow: 16
-  amplification: 250
+  amplification: 500
   baseHeight: 1
   fftWindow: 3
   useDecibels: 0
@@ -1271,15 +1271,15 @@ RectTransform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1287639040}
   m_Father: {fileID: 1530700144}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 72.057, y: 126.3}
-  m_SizeDelta: {x: 44.1135, y: 47.2828}
+  m_AnchoredPosition: {x: 94.3, y: 166.58}
+  m_SizeDelta: {x: 58.771, y: 58.771}
   m_Pivot: {x: 1.0000004, y: 4.006013}
 --- !u!114 &83420466
 MonoBehaviour:
@@ -1338,14 +1338,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.21960786, g: 0.21960786, b: 0.21960786, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: fc73e1e17b7624c41b4cf99965901512, type: 3}
+  m_Sprite: {fileID: 21300000, guid: f33acd83e6f4a54468bf978a2ede2b7f, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -7304,7 +7304,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 0
-  m_Spacing: -25
+  m_Spacing: 0
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 0
@@ -25954,7 +25954,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1510196678}
-  m_LocalRotation: {x: 0, y: 0, z: 1, w: 0}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 101.5909, y: 101.5909, z: 101.5909}
   m_ConstrainProportionsScale: 1
@@ -25962,7 +25962,7 @@ RectTransform:
   - {fileID: 1144761409}
   - {fileID: 2012788807}
   m_Father: {fileID: 1210398015}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 180}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -170, y: 60.8}
