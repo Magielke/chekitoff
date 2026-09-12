@@ -31,10 +31,17 @@ public class PomodoroSessionUI : MonoBehaviour
     [SerializeField] private Color _tabTextActive = Color.white;
     [SerializeField] private Color _tabTextInactive = new Color(0.55f, 0.35f, 0.30f);
 
+    [Header("Kolor treści (czas + ikony, bez zakładek)")]
+    [Tooltip("Ikony play, pause, stop, strzałek. Podpinaj Image ikony, nie tło przycisku.")]
+    [SerializeField] private Graphic[] _controlIcons;
+    [SerializeField] private Color _contentWork = new Color(0.55f, 0.35f, 0.30f);
+    [SerializeField] private Color _contentBreak = Color.white;
+    [SerializeField] private bool _tintTimeText = true;
+
     [Header("UI_ACTIVE - timer chodzi")]
-    [Tooltip("UI_TIMER_stop - PRZERYWA sesję. Timer wraca do Idle, wartości do domyślnych, przyznawana jest nagroda za przepracowany czas.")]
+    [Tooltip("UI_TIMER_stop - PRZERYWA sesję. Timer do Idle, wartości do domyślnych, nagroda za przepracowany czas.")]
     [SerializeField] private Button _stopButton;
-    [Tooltip("UI_TIMER_cancel - PAUZUJE. Czas zachowany, UI przechodzi w INACTIVE, brak nagrody.")]
+    [Tooltip("UI_TIMER_cancel - PAUZUJE. Czas zachowany, UI przechodzi w INACTIVE, bez nagrody.")]
     [SerializeField] private Button _pauseButton;
 
     [Header("UI_INACTIVE - ustawianie")]
@@ -165,7 +172,7 @@ public class PomodoroSessionUI : MonoBehaviour
 
         if (!_rewardOnStop && _rewardPopup) _rewardPopup.SuppressNext();
 
-        _timer.Stop();      // OnPhaseChange(Idle) -> FocusRewardPopup liczy nagrodę
+        _timer.Stop();
 
         _work = _workDefault;
         _brk = _breakDefault;
@@ -178,7 +185,7 @@ public class PomodoroSessionUI : MonoBehaviour
         RefreshBreakObject();
     }
 
-    // ================= zakładki =================
+    // ================= zakładki i kolory =================
 
     private void SelectTab(bool breakTab)
     {
@@ -231,6 +238,24 @@ public class PomodoroSessionUI : MonoBehaviour
 
         if (_workTabText)  _workTabText.color  = work ? _tabTextActive : _tabTextInactive;
         if (_breakTabText) _breakTabText.color = work ? _tabTextInactive : _tabTextActive;
+
+        RefreshContentColor(work);
+    }
+
+    /// <summary>Kolor czasu i ikon sterujących - zakładki mają własny schemat.</summary>
+    private void RefreshContentColor(bool work)
+    {
+        Color c = work ? _contentWork : _contentBreak;
+
+        if (_tintTimeText)
+        {
+            if (_timeTextActive)   _timeTextActive.color = c;
+            if (_timeTextInactive) _timeTextInactive.color = c;
+        }
+
+        if (_controlIcons == null) return;
+        foreach (var g in _controlIcons)
+            if (g) g.color = c;
     }
 
     private void RefreshBreakObject()

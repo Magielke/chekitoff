@@ -48,39 +48,67 @@ public class MusicService : MonoBehaviour
         Instance = this;
 
         if (!_source) _source = GetComponent<AudioSource>();
-        if (_source) { _source.loop = false; _source.playOnAwake = false; }
+        if (!_source) _source = gameObject.AddComponent<AudioSource>();
+
+        _source.loop = false;
+        _source.playOnAwake = false;
+        _source.volume = TargetVolume();
     }
 
     private void Start()
     {
-        if (_playOnStart && _tracks.Count > 0) PlayIndex(_shuffle ? RandomIndex() : 0);
+        OnVolumeChanged?.Invoke(_volume);
+
+        if (_playOnStart && _tracks.Count > 0)
+            PlayIndex(_shuffle ? RandomIndex() : 0);
     }
 
     private void Update()
     {
         UpdateFade();
 
-        // auto-przejście: klip skończony, nie pauza, nie globalna pauza audio
         if (_source && _source.clip && !_source.isPlaying && !_paused
             && !AudioListener.pause && _index >= 0)
             Next();
     }
 
+    /// <summary>Docelowa głośność z uwzględnieniem skali bieżącego utworu.</summary>
+    private float TargetVolume()
+    {
+        var t = CurrentTrack;
+        return _volume * (t != null ? t.volumeScale : 1f);
+    }
+
+    // ---------- sterowanie ----------
+
     public void PlayIndex(int i)
     {
-        if (_tracks.Count == 0) return;
+        if (_tracks.Count == 0 || !_source) return;
 
         _index = Mathf.Clamp(i, 0, _tracks.Count - 1);
         var t = _tracks[_index];
         _paused = false;
 
-        if (_source && t.clip)
+        if (t.clip == null)
         {
-            _source.clip = t.clip;
-            _source.volume = 0f;
-            _source.Play();
-            BeginFade(_volume * t.volumeScale);
+            Debug.LogWarning($"MusicService: utwór '{t.title}' nie ma klipu.", this);
+            return;
         }
+
+        _source.clip = t.clip;
+
+        if (_fadeDuration > 0f)
+        {
+            _source.volume = 0f;
+            BeginFade(TargetVolume());
+        }
+        else
+        {
+            _source.volume = TargetVolume();
+            _fadeTimer = -1f;
+        }
+
+        _source.Play();
 
         OnTrackChanged?.Invoke(t);
         OnPlayStateChanged?.Invoke(true);
@@ -102,8 +130,10 @@ public class MusicService : MonoBehaviour
     public void TogglePlay()
     {
         if (!_source) return;
+
         if (_source.isPlaying) Pause();
-        else Resume();
+        else if (_source.clip) Resume();
+        else if (_tracks.Count > 0) PlayIndex(0);   // nic nie było załadowane
     }
 
     public void Pause()
@@ -130,23 +160,21 @@ public class MusicService : MonoBehaviour
     {
         _volume = Mathf.Clamp01(v);
 
-        var t = CurrentTrack;
-        if (_source && _fadeTimer < 0f)
-            _source.volume = _volume * (t != null ? t.volumeScale : 1f);
+        if (_source)
+        {
+            _fadeTimer = -1f;                  // ręczna zmiana przerywa fade
+            _source.volume = TargetVolume();
+        }
 
         OnVolumeChanged?.Invoke(_volume);
     }
 
     public void ChangeVolume(float delta) => SetVolume(_volume + delta);
 
+    // ---------- fade ----------
+
     private void BeginFade(float to)
     {
-        if (_fadeDuration <= 0f)
-        {
-            if (_source) _source.volume = to;
-            return;
-        }
-
         _fadeFrom = _source ? _source.volume : 0f;
         _fadeTo = to;
         _fadeTimer = 0f;
@@ -157,7 +185,7 @@ public class MusicService : MonoBehaviour
         if (_fadeTimer < 0f || !_source) return;
 
         _fadeTimer += Time.deltaTime;
-        float k = Mathf.Clamp01(_fadeTimer / _fadeDuration);
+        float k = Mathf.Clamp01(_fadeTimer / Mathf.Max(0.01f, _fadeDuration));
         _source.volume = Mathf.Lerp(_fadeFrom, _fadeTo, k);
 
         if (k >= 1f) _fadeTimer = -1f;
@@ -171,4 +199,11 @@ public class MusicService : MonoBehaviour
         do { i = UnityEngine.Random.Range(0, _tracks.Count); } while (i == _index);
         return i;
     }
+
+#if UNITY_EDITOR
+    private void OnValidate()
+    {
+        if (Application.isPlaying && _source) _source.volume = TargetVolume();
+    }
+#endif
 }

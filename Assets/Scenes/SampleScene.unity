@@ -3415,7 +3415,7 @@ CharacterController:
   m_Height: 2.37
   m_Radius: 0.29
   m_SlopeLimit: 45
-  m_StepOffset: 0.3
+  m_StepOffset: 0.01
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 1.09, z: 0}
@@ -21238,7 +21238,7 @@ MonoBehaviour:
   _tracks:
   - title: LOFI 1
     clip: {fileID: 8300000, guid: 56d4c02ded09f6e4a9b0d34d540e65a0, type: 3}
-    volumeScale: 0
+    volumeScale: 0.5
   _playOnStart: 1
   _shuffle: 0
   _source: {fileID: 45484249}
@@ -29787,7 +29787,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _timer: {fileID: 1023442058}
   _desk: {fileID: 1845684344}
-  _rewardPopup: {fileID: 0}
+  _rewardPopup: {fileID: 674005416}
   _uiActive: {fileID: 2063559177}
   _uiInactive: {fileID: 1235676057}
   _breakObject: {fileID: 252132349}
@@ -29805,6 +29805,16 @@ MonoBehaviour:
   _breakTabText: {fileID: 1448977717}
   _tabTextActive: {r: 1, g: 1, b: 1, a: 1}
   _tabTextInactive: {r: 0.55, g: 0.35, b: 0.3, a: 1}
+  _controlIcons:
+  - {fileID: 1594529154}
+  - {fileID: 458814009}
+  - {fileID: 918508003}
+  - {fileID: 166727446}
+  - {fileID: 1332484042}
+  - {fileID: 2069895570}
+  _contentWork: {r: 0.55, g: 0.35, b: 0.3, a: 1}
+  _contentBreak: {r: 1, g: 1, b: 1, a: 1}
+  _tintTimeText: 1
   _stopButton: {fileID: 1093140358}
   _pauseButton: {fileID: 918508005}
   _playButton: {fileID: 2069895572}
