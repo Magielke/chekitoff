@@ -5,12 +5,12 @@ using UnityEngine.UI;
 public class TodoListUI : MonoBehaviour
 {
     [Header("Prefab i kontener")]
-    [SerializeField] private TodoItemUI _itemPrefab;      // prefab z Project, nie obiekt ze sceny
-    [SerializeField] private RectTransform _content;      // Content ze sceny
+    [SerializeField] private TodoItemUI _itemPrefab;
+    [SerializeField] private RectTransform _content;
 
     [Header("Przyciski")]
-    [SerializeField] private RectTransform _addButtonRow; // ButtonAdd - cały wiersz do przesuwania
-    [SerializeField] private Button _addButton;           // Button w środku ButtonAdd
+    [SerializeField] private RectTransform _addButtonRow;
+    [SerializeField] private Button _addButton;
     [SerializeField] private Button _clearDoneButton;
     [SerializeField] private Button _clearAllButton;
 
@@ -28,8 +28,15 @@ public class TodoListUI : MonoBehaviour
             return;
         }
 
-        if (_itemPrefab != null && _itemPrefab.gameObject.scene.IsValid())
-            Debug.LogWarning("TodoListUI: _itemPrefab wskazuje obiekt ze sceny. Zrób z niego prefab i usuń ze sceny.", this);
+        if (_itemPrefab == null)
+        {
+            Debug.LogError("TodoListUI: brak _itemPrefab.", this);
+            enabled = false;
+            return;
+        }
+
+        if (_itemPrefab.gameObject.scene.IsValid())
+            Debug.LogWarning("TodoListUI: _itemPrefab wskazuje obiekt ze sceny. Zrób z niego prefab.", this);
 
         if (_addButton)       _addButton.onClick.AddListener(() => AddItem("", true));
         if (_clearDoneButton) _clearDoneButton.onClick.AddListener(ClearDone);
@@ -40,6 +47,7 @@ public class TodoListUI : MonoBehaviour
 
     public TodoItemUI AddItem(string label, bool startEditing)
     {
+        if (!_itemPrefab) return null;
         if (_items.Count >= _maxItems) return null;
 
         var item = Instantiate(_itemPrefab, _content);

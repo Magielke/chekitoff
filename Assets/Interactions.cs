@@ -1,80 +1,74 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Interactions : MonoBehaviour
 {
-    public Color interactionColor = Color.blue;
     [SerializeField] private KeyCode _interactKey = KeyCode.E;
-    
-    private readonly List<GameObject> _interactions = new List<GameObject>();
+    public Color interactionColor = Color.blue;
 
+    private readonly List<GameObject> interactions = new List<GameObject>();
     private DeskWorkstation _occupiedDesk;
 
     void Update()
     {
-        if (TodoItemUI.AnyEditing)
-                return;
-        
-        if (_occupiedDesk && !_occupiedDesk.IsSeated && !_occupiedDesk.IsBusy)
+        if (TodoItemUI.AnyEditing || NamePromptPopup.IsOpen || FocusRewardPopup.IsOpen) return;
+
+        if (_occupiedDesk != null && !_occupiedDesk.IsSeated && !_occupiedDesk.IsBusy)
             _occupiedDesk = null;
+
         if (!Input.GetKeyDown(_interactKey)) return;
 
-        //0) Wstać od biurka
-        if (_occupiedDesk)
+        if (_occupiedDesk != null)
         {
             _occupiedDesk.Interact();
             return;
         }
 
         GameObject obj = GetClosest();
-        if(!obj) return;
+        if (obj == null) return;
 
-        //1) biurko i timer
         var desk = obj.GetComponentInParent<DeskWorkstation>();
-        if (desk)
+        if (desk != null)
         {
             desk.Interact();
             _occupiedDesk = desk;
             return;
         }
-        
-        //2) drzwi/szafki
+
         var animator = obj.GetComponent<Animator>();
-        if (animator)
+        if (animator != null)
         {
-            bool isOpen = animator.GetBool("Open");
-            animator.SetBool("Open", !isOpen);
+            animator.SetBool("Open", !animator.GetBool("Open"));
             return;
         }
 
-        //3)
         obj.SendMessage("OnInteract", SendMessageOptions.DontRequireReceiver);
     }
 
     private GameObject GetClosest()
     {
-        _interactions.RemoveAll(o => !o);
+        interactions.RemoveAll(o => o == null);
+
         GameObject best = null;
-        float bestDistance = float.MaxValue;
-        foreach (var o in _interactions)
+        float bestDist = float.MaxValue;
+        foreach (var o in interactions)
         {
             float d = (o.transform.position - transform.position).sqrMagnitude;
-            if(d < bestDistance) {bestDistance = d; best = o; }
+            if (d < bestDist) { bestDist = d; best = o; }
         }
         return best;
     }
 
-    private void OnTriggerEnter(Collider other)
+    void OnTriggerEnter(Collider other)
     {
-        if(other.gameObject.layer != 6) return;
-        if(!_interactions.Contains(other.gameObject))
-            _interactions.Add(other.gameObject);
+        if (other.gameObject.layer != 6) return;
+        if (!interactions.Contains(other.gameObject))
+            interactions.Add(other.gameObject);
     }
 
-    private void OnTriggerExit(Collider other)
+    void OnTriggerExit(Collider other)
     {
-        if(other.gameObject.layer != 6) return;
-        _interactions.Remove(other.gameObject);
+        if (other.gameObject.layer != 6) return;
+        interactions.Remove(other.gameObject);
     }
 }

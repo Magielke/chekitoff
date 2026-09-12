@@ -6,11 +6,12 @@ public class PomodoroSessionUI : MonoBehaviour
 {
     [SerializeField] private timer_service _timer;
     [SerializeField] private DeskWorkstation _desk;
+    [SerializeField] private FocusRewardPopup _rewardPopup;
 
     [Header("Obiekty")]
-    [SerializeField] private GameObject _uiActive;      // UI_ACTIVE - timer chodzi
-    [SerializeField] private GameObject _uiInactive;    // UI_INACTIVE - ustawianie
-    [SerializeField] private GameObject _breakObject;   // tło przerwy
+    [SerializeField] private GameObject _uiActive;
+    [SerializeField] private GameObject _uiInactive;
+    [SerializeField] private GameObject _breakObject;
 
     [Header("Wyświetlanie")]
     [SerializeField] private TMP_Text _timeTextActive;
@@ -25,15 +26,22 @@ public class PomodoroSessionUI : MonoBehaviour
     [SerializeField] private Graphic _breakTabGraphic;
     [SerializeField] private Color _tabActive = Color.white;
     [SerializeField] private Color _tabInactive = new Color(1f, 1f, 1f, 0.45f);
+    [SerializeField] private TMP_Text _workTabText;
+    [SerializeField] private TMP_Text _breakTabText;
+    [SerializeField] private Color _tabTextActive = Color.white;
+    [SerializeField] private Color _tabTextInactive = new Color(0.55f, 0.35f, 0.30f);
 
-    [Header("Przyciski - UI_ACTIVE")]
-    [SerializeField] private Button _stopButton;        // pauza
-    [SerializeField] private Button _cancelButton;      // anuluj sesję
+    [Header("UI_ACTIVE - timer chodzi")]
+    [Tooltip("UI_TIMER_stop - PRZERYWA sesję. Timer wraca do Idle, wartości do domyślnych, przyznawana jest nagroda za przepracowany czas.")]
+    [SerializeField] private Button _stopButton;
+    [Tooltip("UI_TIMER_cancel - PAUZUJE. Czas zachowany, UI przechodzi w INACTIVE, brak nagrody.")]
+    [SerializeField] private Button _pauseButton;
 
-    [Header("Przyciski - UI_INACTIVE")]
+    [Header("UI_INACTIVE - ustawianie")]
+    [Tooltip("UI_TIMER_play - start z Idle albo wznowienie po pauzie.")]
+    [SerializeField] private Button _playButton;
     [SerializeField] private Button _timeUpButton;
     [SerializeField] private Button _timeDownButton;
-    [SerializeField] private Button _playButton;
 
     [Header("Zakresy - praca (minuty)")]
     [SerializeField] private int _workDefault = 25;
@@ -55,8 +63,14 @@ public class PomodoroSessionUI : MonoBehaviour
     [SerializeField] private float _repeatDelay = 0.4f;
     [SerializeField] private float _repeatRate = 0.08f;
 
-    [Header("Pętla")]
+    [Header("Dostępność")]
+    [Tooltip("Klawisze działają tylko gdy gracz siedzi przy biurku.")]
+    [SerializeField] private bool _requireSeated = true;
+
+    [Header("Zachowanie")]
     [SerializeField] private bool _loop = true;
+    [Tooltip("Czy PRZERWANIE (stop) przyznaje nagrodę za przepracowany czas.")]
+    [SerializeField] private bool _rewardOnStop = true;
 
     private int _work, _brk;
     private bool _breakTabSelected;
@@ -70,10 +84,10 @@ public class PomodoroSessionUI : MonoBehaviour
         _work = _workDefault;
         _brk = _breakDefault;
 
-        if (_stopButton)   _stopButton.onClick.AddListener(PauseTimer);
-        if (_cancelButton) _cancelButton.onClick.AddListener(CancelTimer);
+        if (_stopButton)  _stopButton.onClick.AddListener(StopSession);
+        if (_pauseButton) _pauseButton.onClick.AddListener(PauseSession);
 
-        if (_playButton)     _playButton.onClick.AddListener(PlayTimer);
+        if (_playButton)     _playButton.onClick.AddListener(PlayOrResume);
         if (_timeUpButton)   _timeUpButton.onClick.AddListener(() => Step(+1));
         if (_timeDownButton) _timeDownButton.onClick.AddListener(() => Step(-1));
 
@@ -88,7 +102,6 @@ public class PomodoroSessionUI : MonoBehaviour
         }
     }
 
-    
     private void OnDestroy()
     {
         if (_timer)
@@ -101,6 +114,13 @@ public class PomodoroSessionUI : MonoBehaviour
 
     private void Start()
     {
+        if (!_timer)
+        {
+            Debug.LogError("PomodoroSessionUI: brak referencji do timer_service.", this);
+            enabled = false;
+            return;
+        }
+
         _timer.Configure(_work, _brk);
         RefreshControls();
         RefreshTabs();
@@ -108,61 +128,10 @@ public class PomodoroSessionUI : MonoBehaviour
         RefreshBreakObject();
     }
 
-    // ---------- zakładki ----------
+    // ================= AKCJE =================
 
-    private void SelectTab(bool breakTab)
-    {
-        _holdDir = 0;
-
-        // timer chodzi - skip do tej fazy
-        if (_timer.IsRunning)
-        {
-            if (breakTab && _timer.phase != PomodoroPhase.Break) _timer.StartBreak();
-            else if (!breakTab && _timer.phase != PomodoroPhase.Work) _timer.StartWork();
-            return;
-        }
-
-        // pauza w trakcie fazy - przełącz fazę i zostań zapauzowany
-        if (_timer.phase != PomodoroPhase.Idle)
-        {
-            _breakTabSelected = breakTab;
-
-            if (breakTab && _timer.phase != PomodoroPhase.Break) { _timer.StartBreak(); _timer.Pause(); }
-            else if (!breakTab && _timer.phase != PomodoroPhase.Work) { _timer.StartWork(); _timer.Pause(); }
-
-            RefreshTabs();
-            RefreshValues();
-            RefreshBreakObject();
-            return;
-        }
-
-        // Idle - zakładka wybiera co edytujemy
-        _breakTabSelected = breakTab;
-        RefreshTabs();
-        RefreshValues();
-        RefreshBreakObject();
-    }
-
-    private void RefreshTabs()
-    {
-        if (_workTabGraphic)  _workTabGraphic.color  = _breakTabSelected ? _tabInactive : _tabActive;
-        if (_breakTabGraphic) _breakTabGraphic.color = _breakTabSelected ? _tabActive : _tabInactive;
-    }
-
-    private void RefreshBreakObject()
-    {
-        if (!_breakObject) return;
-
-        bool onBreak = _timer.IsRunning
-            ? _timer.phase == PomodoroPhase.Break
-            : _breakTabSelected;
-
-        _breakObject.SetActive(onBreak);
-    }
-
-    // ---------- sterowanie ----------
-
-    private void PlayTimer()
+    /// <summary>START / WZNOWIENIE. Z Idle startuje nową sesję, po pauzie wznawia bieżącą fazę.</summary>
+    private void PlayOrResume()
     {
         if (_timer.phase == PomodoroPhase.Idle)
         {
@@ -176,24 +145,31 @@ public class PomodoroSessionUI : MonoBehaviour
         {
             _timer.Resume();
         }
+
         RefreshControls();
     }
 
-    private void PauseTimer()
+    /// <summary>PAUZA. Zatrzymuje odliczanie, zachowuje pozostały czas. Bez nagrody.</summary>
+    private void PauseSession()
     {
+        if (!_timer.IsRunning) return;
+
         _timer.Pause();
         RefreshControls();
     }
 
-    /// <summary>Anuluje sesję - timer do Idle, wartości do domyślnych.</summary>
-    private void CancelTimer()
+    /// <summary>PRZERWANIE. Kończy sesję, resetuje wartości do domyślnych. Nagroda wg _rewardOnStop.</summary>
+    private void StopSession()
     {
-        _timer.Stop();
+        if (_timer.phase == PomodoroPhase.Idle) return;
+
+        if (!_rewardOnStop && _rewardPopup) _rewardPopup.SuppressNext();
+
+        _timer.Stop();      // OnPhaseChange(Idle) -> FocusRewardPopup liczy nagrodę
 
         _work = _workDefault;
         _brk = _breakDefault;
         _breakTabSelected = false;
-
         _timer.Configure(_work, _brk);
 
         RefreshControls();
@@ -202,11 +178,76 @@ public class PomodoroSessionUI : MonoBehaviour
         RefreshBreakObject();
     }
 
-    // ---------- wartości ----------
+    // ================= zakładki =================
+
+    private void SelectTab(bool breakTab)
+    {
+        _holdDir = 0;
+
+        // timer chodzi - skip do wybranej fazy
+        if (_timer.IsRunning)
+        {
+            if (breakTab && _timer.phase != PomodoroPhase.Break) _timer.StartBreak();
+            else if (!breakTab && _timer.phase != PomodoroPhase.Work) _timer.StartWork();
+            return;
+        }
+
+        // pauza w trakcie fazy - przełącz fazę, zostań zapauzowany
+        if (_timer.phase != PomodoroPhase.Idle)
+        {
+            _breakTabSelected = breakTab;
+
+            if (breakTab && _timer.phase != PomodoroPhase.Break)
+            {
+                if (_rewardPopup) _rewardPopup.SuppressNext();
+                _timer.StartBreak();
+                _timer.Pause();
+            }
+            else if (!breakTab && _timer.phase != PomodoroPhase.Work)
+            {
+                _timer.StartWork();
+                _timer.Pause();
+            }
+
+            RefreshTabs();
+            RefreshValues();
+            RefreshBreakObject();
+            return;
+        }
+
+        // Idle - zakładka wybiera co edytujemy i czym wystartuje sesja
+        _breakTabSelected = breakTab;
+        RefreshTabs();
+        RefreshValues();
+        RefreshBreakObject();
+    }
+
+    private void RefreshTabs()
+    {
+        bool work = !_breakTabSelected;
+
+        if (_workTabGraphic)  _workTabGraphic.color  = work ? _tabActive : _tabInactive;
+        if (_breakTabGraphic) _breakTabGraphic.color = work ? _tabInactive : _tabActive;
+
+        if (_workTabText)  _workTabText.color  = work ? _tabTextActive : _tabTextInactive;
+        if (_breakTabText) _breakTabText.color = work ? _tabTextInactive : _tabTextActive;
+    }
+
+    private void RefreshBreakObject()
+    {
+        if (!_breakObject) return;
+
+        bool onBreak = _timer.IsRunning
+            ? _timer.phase == PomodoroPhase.Break
+            : _breakTabSelected;
+
+        _breakObject.SetActive(onBreak);
+    }
+
+    // ================= wartości =================
 
     private void Step(int dir)
     {
-        // w pauzie strzałki startują fazę od nowa z nową wartością
         bool midPhase = _timer.phase != PomodoroPhase.Idle;
 
         if (_breakTabSelected)
@@ -218,7 +259,9 @@ public class PomodoroSessionUI : MonoBehaviour
 
         if (midPhase)
         {
-            // przeładuj bieżącą fazę nową długością i zostaw zapauzowaną
+            // przeładowanie fazy nową długością - to nie jest przerwanie sesji
+            if (_rewardPopup) _rewardPopup.SuppressNext();
+
             if (_breakTabSelected) _timer.StartBreak();
             else                   _timer.StartWork();
             _timer.Pause();
@@ -241,10 +284,12 @@ public class PomodoroSessionUI : MonoBehaviour
         _timeTextInactive.text = $"{v:D2}:00";
     }
 
-    // ---------- pętla ----------
+    // ================= pętla =================
 
     private void Update()
     {
+        if (!_timer) return;
+
         if (_timer.IsRunning != _lastRunning) RefreshControls();
 
         if (_timer.IsRunning)
@@ -254,9 +299,8 @@ public class PomodoroSessionUI : MonoBehaviour
             return;
         }
 
-        if (TodoItemUI.AnyEditing) return;
-        
-        // INACTIVE - strzałki działają cały czas
+        if (!KeyboardAvailable()) return;
+
         if (Input.GetKeyDown(_tabKey)) SelectTab(!_breakTabSelected);
 
         if (Input.GetKeyDown(_upKey))   BeginHold(+1);
@@ -274,7 +318,18 @@ public class PomodoroSessionUI : MonoBehaviour
             }
         }
 
-        if (Input.GetKeyDown(_confirmKey)) PlayTimer();
+        if (Input.GetKeyDown(_confirmKey)) PlayOrResume();
+    }
+
+    /// <summary>Klawisze działają tylko gdy start timera jest realnie możliwy.</summary>
+    private bool KeyboardAvailable()
+    {
+        if (TodoItemUI.AnyEditing) return false;
+        if (NamePromptPopup.IsOpen || FocusRewardPopup.IsOpen) return false;
+        if (_requireSeated && _desk && !_desk.IsSeated) return false;
+        if (_uiInactive && !_uiInactive.activeInHierarchy) return false;
+
+        return true;
     }
 
     private void BeginHold(int dir)
@@ -284,7 +339,7 @@ public class PomodoroSessionUI : MonoBehaviour
         Step(dir);
     }
 
-    // ---------- reakcja na timer ----------
+    // ================= reakcja na timer =================
 
     private void HandlePhaseChange(PomodoroPhase phase)
     {

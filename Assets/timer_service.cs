@@ -1,54 +1,41 @@
 using System;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using Unity.Cinemachine;
 
-public enum PomodoroPhase
-{
-    Idle,
-    Work,
-    Break
-}
+public enum PomodoroPhase { Idle, Work, Break }
 
 public class timer_service : MonoBehaviour
 {
-
-    [Header("Domyślne wartości pomodoro")] [SerializeField]
-    private float _DefaultWorkMinutes = 25f;
-
+    [Header("Domyślne wartości pomodoro")]
+    [SerializeField] private float _DefaultWorkMinutes = 25f;
     [SerializeField] private float _DefaultBreakMinutes = 5f;
     [SerializeField] private bool _loopPhases = true;
 
-    [Header("Wyświetlanie (Ekran na biurku)")] [SerializeField]
-    private TMP_Text _timeText;
-
+    [Header("Wyświetlanie (ekran na biurku)")]
+    [SerializeField] private TMP_Text _timeText;
     [SerializeField] private TMP_Text _stateText;
     [SerializeField] private string _workLabel = "PRACA";
     [SerializeField] private string _breakLabel = "PRZERWA";
     [SerializeField] private string _idleLabel = "-";
 
-
-    [Header("Tło")] [SerializeField] private Renderer _backgroundRenderer;
+    [Header("Tło")]
+    [SerializeField] private Renderer _backgroundRenderer;
     [SerializeField] private string _colorProperty = "_BaseColor";
     [SerializeField] private Graphic _backgroundGraphic;
     [SerializeField] private Color _workColor;
     [SerializeField] private Color _breakColor;
     [SerializeField] private Color _idleColor;
     [SerializeField] private bool _tintText = false;
-    
-    [Header("Animacja gracza (poza siadaniem")] [SerializeField]
-    private Animator _playerAnimator;
 
+    [Header("Animacja gracza (poza siadaniem)")]
+    [SerializeField] private Animator _playerAnimator;
     [SerializeField] private string _breakBoolParam = "Focus";
 
-    //Zdarzenia zewnętrzne
     public event Action<PomodoroPhase> OnPhaseChange;
     public event Action<float> OnTick;
     public event Action OnFinished;
 
-    //Stan
     private PomodoroPhase _phase = PomodoroPhase.Idle;
     private float _workDuration, _breakDuration;
     private float _time, _timerTemp, _remainingTime;
@@ -72,9 +59,8 @@ public class timer_service : MonoBehaviour
         RefreshDisplay();
     }
 
-    //API
     public void SetLoop(bool loop) => _loopPhases = loop;
-    
+
     public void Configure(float workMinutes, float breakMinutes)
     {
         _workDuration = Mathf.Max(1f, workMinutes * 60f);
@@ -101,32 +87,29 @@ public class timer_service : MonoBehaviour
 
     public void Resume()
     {
-        if (_phase != PomodoroPhase.Idle)
-        {
-            _running = true;
-        }
+        if (_phase != PomodoroPhase.Idle) _running = true;
     }
 
     public void SkipPhase()
     {
-        if(_phase != PomodoroPhase.Idle)
-            HandlePhaseEnd();
+        if (_phase != PomodoroPhase.Idle) HandlePhaseEnd();
     }
 
     public void Stop()
     {
         _running = false;
         _phase = PomodoroPhase.Idle;
-        _remainingTime = 0f;
-        _time = 0f;
-        _timerTemp = 0f;
+
         SetAnimatorBreak(false);
         ApplyVisuals();
         RefreshDisplay();
-        OnPhaseChange?.Invoke(_phase);
+        OnPhaseChange?.Invoke(_phase);   // zdarzenie zanim wyzerujemy czas
+
+        _remainingTime = 0f;
+        _time = 0f;
+        _timerTemp = 0f;
     }
 
-    //Pętla
     private void Update()
     {
         if (!_running) return;
@@ -137,7 +120,7 @@ public class timer_service : MonoBehaviour
 
         if (_remainingTime <= 0f)
         {
-            _remainingTime = 0;
+            _remainingTime = 0f;
             RefreshDisplay();
             OnTick?.Invoke(0f);
             HandlePhaseEnd();
@@ -159,13 +142,8 @@ public class timer_service : MonoBehaviour
         }
         else if (_phase == PomodoroPhase.Break)
         {
-            if(_loopPhases)
-                EnterPhase(PomodoroPhase.Work);
-            else
-            {
-                Stop();
-                OnFinished?.Invoke();
-            }
+            if (_loopPhases) EnterPhase(PomodoroPhase.Work);
+            else { Stop(); OnFinished?.Invoke(); }
         }
     }
 
@@ -176,19 +154,17 @@ public class timer_service : MonoBehaviour
         _time = 0f;
         _timerTemp = 0f;
         _running = true;
-        
+
         SetAnimatorBreak(phase == PomodoroPhase.Break);
         ApplyVisuals();
         RefreshDisplay();
         OnPhaseChange?.Invoke(_phase);
-
     }
 
-    //prezentacja
     private void RefreshDisplay()
     {
         if (_timeText) _timeText.text = TimeString;
-        if(_stateText) _stateText.text = StateString;
+        if (_stateText) _stateText.text = StateString;
     }
 
     private void ApplyVisuals()
@@ -204,24 +180,21 @@ public class timer_service : MonoBehaviour
             else mat.color = color;
         }
 
-        if (_backgroundGraphic)
-        {
-            _backgroundGraphic.color = color;
-        }
+        if (_backgroundGraphic) _backgroundGraphic.color = color;
 
         if (_tintText)
         {
-            if(_timeText) _timeText.color = color;
-            if(_stateText) _stateText.color = color;
+            if (_timeText) _timeText.color = color;
+            if (_stateText) _stateText.color = color;
         }
-        
     }
 
     private static string Format(float seconds)
     {
         TimeSpan t = TimeSpan.FromSeconds(Mathf.Max(0f, seconds));
-        return t.Hours>0? $"{t.Hours:D2}:{t.Minutes:D2}:{t.Seconds:D2}" : $"{t.Minutes:D2}:{t.Seconds:D2}";
-        
+        return t.Hours > 0
+            ? $"{t.Hours:D2}:{t.Minutes:D2}:{t.Seconds:D2}"
+            : $"{t.Minutes:D2}:{t.Seconds:D2}";
     }
 
     private void SetAnimatorBreak(bool onBreak)

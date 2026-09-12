@@ -29,7 +29,10 @@ public class DeskWorkstation : MonoBehaviour
 
     [Header("Timer i UI")]
     [SerializeField] private timer_service _timer;
-    [SerializeField] private GameObject _timerUiRoot;   // rodzic UI_ACTIVE + UI_INACTIVE
+    [SerializeField] private PanelReveal _timerPanel;
+    [SerializeField] private FocusRewardPopup _rewardPopup;
+    [Tooltip("Czy wstanie od biurka przyznaje nagrodę za przepracowany czas.")]
+    [SerializeField] private bool _rewardOnStandUp = true;
 
     private bool _seated;
     private bool _busy;
@@ -43,10 +46,8 @@ public class DeskWorkstation : MonoBehaviour
 
     private void Start()
     {
-        if (_timerUiRoot) _timerUiRoot.SetActive(false);
+        if (_timerPanel) _timerPanel.Hide();
     }
-
-    // ---------- wywołanie z interakcji (klawisz E) ----------
 
     public void Interact()
     {
@@ -67,8 +68,6 @@ public class DeskWorkstation : MonoBehaviour
         StartCoroutine(StandRoutine());
     }
 
-    // ---------- sekwencje ----------
-
     private IEnumerator SitRoutine()
     {
         _busy = true;
@@ -86,7 +85,7 @@ public class DeskWorkstation : MonoBehaviour
             _returnRot = _playerRoot.rotation;
             _movedToSeat = true;
             yield return MoveTo(_playerRoot, _seatAnchor.position, _seatAnchor.rotation,
-                                _snapDuration, restoreController: false);
+                                _snapDuration, false);
         }
 
         if (_playerAnimator)
@@ -102,15 +101,20 @@ public class DeskWorkstation : MonoBehaviour
         _busy = false;
 
         SetCursor(true);
-        if (_timerUiRoot) _timerUiRoot.SetActive(true);
+        if (_timerPanel) _timerPanel.Show();
     }
 
     private IEnumerator StandRoutine()
     {
         _busy = true;
 
-        if (_timerUiRoot) _timerUiRoot.SetActive(false);
-        if (_timer) _timer.Stop();
+        if (_timerPanel) _timerPanel.Hide();
+
+        if (_timer)
+        {
+            if (!_rewardOnStandUp && _rewardPopup) _rewardPopup.SuppressNext();
+            _timer.Stop();
+        }
 
         SetCursor(false);
         SetAnimatorSitting(false);
@@ -118,8 +122,7 @@ public class DeskWorkstation : MonoBehaviour
 
         if (_movedToSeat && _playerRoot)
         {
-            yield return MoveTo(_playerRoot, _returnPos, _returnRot,
-                                _snapDuration, restoreController: false);
+            yield return MoveTo(_playerRoot, _returnPos, _returnRot, _snapDuration, false);
 
             if (_playerController)
             {
@@ -133,7 +136,6 @@ public class DeskWorkstation : MonoBehaviour
             _movedToSeat = false;
         }
 
-        // gdyby snap był wyłączony, a controller mimo to został wyłączony
         if (_playerController && !_playerController.enabled)
             _playerController.enabled = true;
 
@@ -147,8 +149,6 @@ public class DeskWorkstation : MonoBehaviour
 
         SetCursor(false);
     }
-
-    // ---------- pomocnicze ----------
 
     private void SetControls(bool enabled)
     {

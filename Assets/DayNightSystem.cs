@@ -1,6 +1,6 @@
 using System;
-using System.Collections.Generic;
 using System.Collections;
+using System.Collections.Generic;
 using System.Globalization;
 using TMPro;
 using UnityEngine;
@@ -13,25 +13,16 @@ public class DayNightSystem : MonoBehaviour
     [SerializeField] private TMP_Text dateText;
     [SerializeField] private string format = "ddd dd/MM";
 
-
-    [Header("Obrót")] [SerializeField] private Transform _rotatingDisk;
-    [SerializeField] private Vector3 _rotatingDiskAxis = Vector3.up;
-    [SerializeField] private float _rotationDuration = 3f;
-    [SerializeField] private bool _rotateShortestPath = true;
-    
-
-    // public GameObject sunLight;
     [Header("Lightning system")]
     public GameObject NightLightSet;
     public List<LightData> NightLights = new List<LightData>();
     public GameObject DayLightSet;
     public List<LightData> DayLights = new List<LightData>();
     public float timeOfLightChange = 2f;
-    
-    [Header("DEBUG")]
+
+    [Header("Debug")]
     public bool DEBUG_OVERRIDE_STATE_CHANGE = false;
 
-    
     [Header("Check interval")]
     [SerializeField] private float checkIntervalSeconds = 60f;
 
@@ -45,32 +36,41 @@ public class DayNightSystem : MonoBehaviour
     [Header("Events")]
     public UnityEvent<DayState> OnStateChanged;
     public UnityEvent<int> OnHourChanged;
-    
+
     [Header("Skybox")]
     [SerializeField] private Material _skyboxMaterial;
     [SerializeField] private float _blendSpeed = 0.5f;
     [SerializeField] private bool _instantOnStart = true;
 
-    private bool _isLightStable = false;
-    private bool _debug_change = false;
+    [Header("Obrót przy zmianie")]
+    [SerializeField] private Transform _rotatingObject;
+    [SerializeField] private Vector3 _rotationAxis = Vector3.up;
+    [SerializeField] private float _rotationDuration = 3f;
+    [SerializeField] private bool _rotateShortestPath = true;
 
-    private Quaternion _rotFrom, _rotTo;
-    private float _rotTimer = -1f;
-    
+    private bool _islightStable;
+    private bool _debug_change;
+    private bool _initialized;
+
     private DayState _lastState;
     private int _lastHour;
     private float _timer;
     private DateTime showDate;
-    
-    private static readonly int BlendID = Shader.PropertyToID("_Blend");
 
+    private static readonly int BlendID = Shader.PropertyToID("_Blend");
     private float _targetBlend;
     private float _currentBlend;
 
+    private Quaternion _rotFrom, _rotTo;
+    private float _rotTimer = -1f;
+
+    // ================= inicjalizacja =================
+
     private void Awake()
     {
-        if(DayLightSet && !DayLightSet.activeSelf) DayLightSet.SetActive(true);
-        if(NightLightSet && !NightLightSet.activeSelf) NightLightSet.SetActive(true);
+        if (DayLightSet && !DayLightSet.activeSelf) DayLightSet.SetActive(true);
+        if (NightLightSet && !NightLightSet.activeSelf) NightLightSet.SetActive(true);
+
         if (_skyboxMaterial)
         {
             _skyboxMaterial = new Material(_skyboxMaterial);
@@ -81,47 +81,58 @@ public class DayNightSystem : MonoBehaviour
     void Start()
     {
         ForceInitialState();
-        
+
         DayLights = CollectLights(DayLightSet);
         NightLights = CollectLights(NightLightSet);
 
         bool night = WantNight();
-        foreach(LightData d in DayLights) d.light.intensity = night ? 0f:d.intensity;
-        foreach(LightData n in NightLights) n.light.intensity = night ? n.intensity : 0f;
+        foreach (LightData d in DayLights) d.light.intensity = night ? 0f : d.intensity;
+        foreach (LightData n in NightLights) n.light.intensity = night ? n.intensity : 0f;
 
-        _isLightStable = true;
+        _islightStable = true;
         _debug_change = DEBUG_OVERRIDE_STATE_CHANGE;
+        _initialized = true;
     }
-    
+
     private void ForceInitialState()
     {
-        DateTime  now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.Local);
+        DateTime now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.Local);
         currentHour = now.Hour;
         currentMonth = now.Month;
 
-        _lastHour = now.Hour;
+        _lastHour = currentHour;
         _lastState = GetState(currentHour, currentMonth);
         currentState = _lastState;
-        
-        OnStateChanged?.Invoke(_lastState);
-        OnHourChanged?.Invoke(_lastHour);
+
+        OnHourChanged?.Invoke(currentHour);
         OnHourChange(currentHour);
+        OnStateChanged?.Invoke(currentState);
         OnDayNightChange(currentState);
-        
-        ApplySkybox(WantNight(),_instantOnStart);
+
+        ApplySkybox(WantNight(), _instantOnStart);
         ApplyRotationInstant(WantNight());
     }
+
+    // ================= stan =================
 
     private bool WantNight()
     {
         bool night = currentState == DayState.Night;
-        if(DEBUG_OVERRIDE_STATE_CHANGE) night = !night;
+        if (DEBUG_OVERRIDE_STATE_CHANGE) night = !night;
         return night;
     }
-    
+
+    /// <summary>Do podpięcia pod Button.onClick.</summary>
+    [ContextMenu("Przełącz debug override")]
+    public void ToggleDebugOverride()
+    {
+        DEBUG_OVERRIDE_STATE_CHANGE = !DEBUG_OVERRIDE_STATE_CHANGE;
+    }
+
     private void ApplySkybox(bool isNight, bool instant)
     {
         _targetBlend = isNight ? 1f : 0f;
+
         if (instant)
         {
             _currentBlend = _targetBlend;
@@ -133,127 +144,127 @@ public class DayNightSystem : MonoBehaviour
         }
     }
 
-    void BeginRotation()
+    // ================= obrót =================
+
+    private void BeginRotation()
     {
-        if(!_rotatingDisk) return;
-        
-        _rotFrom = _rotatingDisk.rotation;
-        _rotTo = _rotFrom * Quaternion.AngleAxis(180f, _rotatingDiskAxis);
+        if (_rotatingObject == null || !_initialized) return;
+
+        _rotFrom = _rotatingObject.rotation;
+        _rotTo = _rotFrom * Quaternion.AngleAxis(180f, _rotationAxis);
         _rotTimer = 0f;
     }
 
-    void UpdateRotation()
+    /// <summary>Pozycja w scenie = noc; dzień = +180 stopni, bez animacji.</summary>
+    private void ApplyRotationInstant(bool wantNight)
     {
-        if(!_rotatingDisk || _rotTimer < 0f) return;
+        if (_rotatingObject == null) return;
+
+        if (!wantNight)
+            _rotatingObject.rotation = _rotatingObject.rotation * Quaternion.AngleAxis(180f, _rotationAxis);
+
+        _rotTimer = -1f;
+    }
+
+    private void UpdateRotation()
+    {
+        if (_rotatingObject == null || _rotTimer < 0f) return;
+
         _rotTimer += Time.deltaTime;
-        float t = Mathf.Clamp01(_rotTimer/Mathf.Max(0.01f,_rotationDuration));
-        
+        float t = Mathf.Clamp01(_rotTimer / Mathf.Max(0.01f, _rotationDuration));
         float k = Mathf.SmoothStep(0f, 1f, t);
-        Quaternion rot = _rotateShortestPath
+
+        _rotatingObject.rotation = _rotateShortestPath
             ? Quaternion.Slerp(_rotFrom, _rotTo, k)
-            : Quaternion.AngleAxis(180f * k, _rotatingDiskAxis) * _rotFrom;
-        _rotatingDisk.rotation = rot;
+            : Quaternion.AngleAxis(180f * k, _rotationAxis) * _rotFrom;
 
         if (t >= 1f)
         {
-            _rotatingDisk.rotation = _rotTo;
+            _rotatingObject.rotation = _rotTo;
             _rotTimer = -1f;
         }
     }
 
-    void ApplyRotationInstant(bool wantNight)
-    {
-        if(!_rotatingDisk) return;
-        if(!wantNight)
-            _rotatingDisk.rotation = _rotatingDisk.rotation * Quaternion.AngleAxis(180f,_rotatingDiskAxis);
+    // ================= pętla =================
 
-        _rotTimer = -1f;
-    }
     void Update()
     {
         _timer += Time.deltaTime;
         if (_timer >= checkIntervalSeconds)
         {
-            _timer = 0;
+            _timer = 0f;
             Check();
         }
-        
+
         DateTime now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.Local);
-        if(timeText) timeText.text = now.ToString("HH:mm");
+        if (timeText) timeText.text = now.ToString("HH:mm");
 
         if (DEBUG_OVERRIDE_STATE_CHANGE != _debug_change)
         {
             _debug_change = DEBUG_OVERRIDE_STATE_CHANGE;
-            _isLightStable = false;
-            UpdateRotation();
-            OnDayNightChange(WantNight() ? DayState.Night : DayState.Day);
+            _islightStable = false;
+            BeginRotation();
         }
-        
+
         bool wantNight = WantNight();
-        ApplySkybox(wantNight,false);
+        ApplySkybox(wantNight, false);
 
         UpdateLights(wantNight);
         UpdateSkyboxBlend();
         UpdateRotation();
     }
 
-    public void ToggleDebugOverride()
-    {
-        DEBUG_OVERRIDE_STATE_CHANGE = !DEBUG_OVERRIDE_STATE_CHANGE;
-    }
-
     private void UpdateLights(bool wantNight)
     {
-        if (_isLightStable) return;
-        
-        float k= 1f - Mathf.Pow(0.01f, Time.deltaTime/Mathf.Max(0.01f, timeOfLightChange));
+        if (_islightStable) return;
+
+        float k = 1f - Mathf.Pow(0.01f, Time.deltaTime / Mathf.Max(0.01f, timeOfLightChange));
         bool allDone = true;
 
         foreach (LightData d in DayLights)
         {
-            if (!d || !d.light) continue;
+            if (d == null || d.light == null) continue;
             float target = wantNight ? 0f : d.intensity;
             d.light.intensity = Mathf.Lerp(d.light.intensity, target, k);
-            
-            if(Mathf.Abs(d.light.intensity - target) > 0.01f) allDone = false;
+
+            if (Mathf.Abs(d.light.intensity - target) > 0.001f) allDone = false;
             else d.light.intensity = target;
         }
+
         foreach (LightData n in NightLights)
         {
-            if (!n || !n.light) continue;
-            float target = wantNight ?  n.intensity:0f;
+            if (n == null || n.light == null) continue;
+            float target = wantNight ? n.intensity : 0f;
             n.light.intensity = Mathf.Lerp(n.light.intensity, target, k);
-            
-            if(Mathf.Abs(n.light.intensity - target) > 0.01f) allDone = false;
+
+            if (Mathf.Abs(n.light.intensity - target) > 0.001f) allDone = false;
             else n.light.intensity = target;
         }
-        _isLightStable = allDone;
+
+        _islightStable = allDone;
     }
 
     private void UpdateSkyboxBlend()
     {
-        if(!_skyboxMaterial) return;
-        if(Mathf.Approximately(_currentBlend,_targetBlend)) return;
-        
-        _currentBlend = Mathf.MoveTowards(_currentBlend,_targetBlend,_blendSpeed * Time.deltaTime);
+        if (!_skyboxMaterial) return;
+        if (Mathf.Approximately(_targetBlend, _currentBlend)) return;
+
+        _currentBlend = Mathf.MoveTowards(_currentBlend, _targetBlend, _blendSpeed * Time.deltaTime);
         _skyboxMaterial.SetFloat(BlendID, _currentBlend);
         DynamicGI.UpdateEnvironment();
     }
 
+    // ================= światła =================
+
     private List<LightData> CollectLights(GameObject root)
     {
         var result = new List<LightData>();
-        if (root == null)
-        {
-            return result;
-        }
+        if (root == null) return result;
+
         foreach (Light light in root.GetComponentsInChildren<Light>(true))
         {
             LightData lightData = light.GetComponent<LightData>();
-            if (lightData == null)
-            {
-                lightData = light.gameObject.AddComponent<LightData>();
-            }
+            if (lightData == null) lightData = light.gameObject.AddComponent<LightData>();
 
             lightData.light = light;
             lightData.intensity = light.intensity;
@@ -261,6 +272,8 @@ public class DayNightSystem : MonoBehaviour
         }
         return result;
     }
+
+    // ================= czas =================
 
     void Check()
     {
@@ -285,28 +298,27 @@ public class DayNightSystem : MonoBehaviour
         }
     }
 
-    // Override these in a subclass, or just add your logic directly here
     protected virtual void OnDayNightChange(DayState newState)
     {
-        _isLightStable = false;
+        _islightStable = false;
         BeginRotation();
+
         switch (newState)
         {
             case DayState.Night: HandleNight(); break;
-            case DayState.Day: HandleDay(); break;
+            case DayState.Day:   HandleDay();   break;
         }
     }
 
     protected virtual void OnHourChange(int hour) { }
 
     protected virtual void HandleNight() { Debug.Log("Night"); }
-    protected virtual void HandleDay() { Debug.Log("Day"); }
+    protected virtual void HandleDay()   { Debug.Log("Day"); }
 
     DayState GetState(int hour, int month)
     {
         GetSunTimes(month, out int sunrise, out int sunset);
-
-        return(hour >= sunrise && hour <= sunset) ? DayState.Day : DayState.Night;
+        return (hour >= sunrise && hour < sunset) ? DayState.Day : DayState.Night;
     }
 
     void GetSunTimes(int month, out int sunrise, out int sunset)
@@ -326,11 +338,14 @@ public class DayNightSystem : MonoBehaviour
     public DayState GetCurrentState() => currentState;
     public bool IsNight() => currentState == DayState.Night;
     public bool IsDaytime() => currentState == DayState.Day;
+
     public float GetDayProgress()
     {
         GetSunTimes(currentMonth, out int sunrise, out int sunset);
         return Mathf.Clamp01((float)(currentHour - sunrise) / (sunset - sunrise));
     }
+
+    // ================= data =================
 
     private void OnEnable()
     {
@@ -351,6 +366,6 @@ public class DayNightSystem : MonoBehaviour
     private void Refresh()
     {
         showDate = DateTime.Now.Date;
-        dateText.text = showDate.ToString(format, CultureInfo.InvariantCulture);
+        if (dateText) dateText.text = showDate.ToString(format, CultureInfo.InvariantCulture);
     }
 }

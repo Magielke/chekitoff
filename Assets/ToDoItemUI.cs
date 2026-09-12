@@ -5,23 +5,27 @@ using TMPro;
 
 public class TodoItemUI : MonoBehaviour
 {
-    /// <summary>True gdy dowolny element jest w trybie edycji - blokuje input gry.</summary>
-    public static bool AnyEditing { get; private set; }
+    private static int _editingCount;
+    private static int _lastEditEndFrame = -1;
+
+    /// <summary>True gdy trwa edycja lub skończyła się w tej klatce.</summary>
+    public static bool AnyEditing => _editingCount > 0 || Time.frameCount <= _lastEditEndFrame;
 
     [Header("Checkbox")]
-    [SerializeField] private Button _checkboxButton;
-    [SerializeField] private GameObject _checkedBox;      // BUTTON_Checkbox_checked
-    [SerializeField] private GameObject _uncheckedBox;    // BUTTON_Checkbox
+    [SerializeField] private Button _checkboxButton;          // BUTTON_Checkbox
+    [SerializeField] private Button _checkboxCheckedButton;   // BUTTON_Checkbox_checked
+    [SerializeField] private GameObject _checkedBox;
+    [SerializeField] private GameObject _uncheckedBox;
 
     [Header("Tekst")]
-    [SerializeField] private TMP_Text _textNormal;        // TEXT_unchecked
-    [SerializeField] private TMP_Text _textChecked;       // TEXT_checked
+    [SerializeField] private TMP_Text _textNormal;            // TEXT_unchecked
+    [SerializeField] private TMP_Text _textChecked;           // TEXT_checked
     [SerializeField] private TMP_InputField _editField;
     [SerializeField] private bool _strikethroughTag = true;
 
     [Header("Pozostałe")]
     [SerializeField] private Button _deleteButton;
-    [SerializeField] private Button _textButton;          // klikalny obszar tekstu
+    [SerializeField] private Button _textButton;
 
     public event Action<TodoItemUI> OnDeleteRequested;
     public event Action<TodoItemUI> OnEditFinished;
@@ -35,9 +39,10 @@ public class TodoItemUI : MonoBehaviour
 
     private void Awake()
     {
-        if (_checkboxButton) _checkboxButton.onClick.AddListener(ToggleDone);
-        if (_deleteButton)   _deleteButton.onClick.AddListener(() => OnDeleteRequested?.Invoke(this));
-        if (_textButton)     _textButton.onClick.AddListener(BeginEdit);
+        if (_checkboxButton)        _checkboxButton.onClick.AddListener(ToggleDone);
+        if (_checkboxCheckedButton) _checkboxCheckedButton.onClick.AddListener(ToggleDone);
+        if (_deleteButton)          _deleteButton.onClick.AddListener(() => OnDeleteRequested?.Invoke(this));
+        if (_textButton)            _textButton.onClick.AddListener(BeginEdit);
 
         if (_editField)
         {
@@ -51,7 +56,7 @@ public class TodoItemUI : MonoBehaviour
         if (_editing)
         {
             _editing = false;
-            AnyEditing = false;
+            EndEditFlag();
         }
     }
 
@@ -63,8 +68,6 @@ public class TodoItemUI : MonoBehaviour
 
         if (startEditing) BeginEdit();
     }
-
-    // ---------- stan ----------
 
     private void ToggleDone()
     {
@@ -79,13 +82,11 @@ public class TodoItemUI : MonoBehaviour
         RefreshVisuals();
     }
 
-    // ---------- edycja ----------
-
     public void BeginEdit()
     {
         if (_editing) return;
         _editing = true;
-        AnyEditing = true;
+        _editingCount++;
 
         if (_textNormal)  _textNormal.gameObject.SetActive(false);
         if (_textChecked) _textChecked.gameObject.SetActive(false);
@@ -103,7 +104,7 @@ public class TodoItemUI : MonoBehaviour
     {
         if (!_editing) return;
         _editing = false;
-        AnyEditing = false;
+        EndEditFlag();
 
         string v = _editField ? _editField.text.Trim() : _label;
 
@@ -122,18 +123,22 @@ public class TodoItemUI : MonoBehaviour
     {
         if (!_editing) return;
         _editing = false;
-        AnyEditing = false;
+        EndEditFlag();
 
         if (string.IsNullOrEmpty(_label)) OnDeleteRequested?.Invoke(this);
         else RefreshVisuals();
+    }
+
+    private static void EndEditFlag()
+    {
+        _editingCount = Mathf.Max(0, _editingCount - 1);
+        _lastEditEndFrame = Time.frameCount;
     }
 
     private void Update()
     {
         if (_editing && Input.GetKeyDown(KeyCode.Escape)) CancelEdit();
     }
-
-    // ---------- wygląd ----------
 
     private void RefreshVisuals()
     {
