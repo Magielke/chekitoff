@@ -8943,15 +8943,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: ffb3d192f2fc6e049af09838c7dad768, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 31.417019
+      value: 27.92
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: ffb3d192f2fc6e049af09838c7dad768, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 9.256035
+      value: 10.686
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: ffb3d192f2fc6e049af09838c7dad768, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 44.93667
+      value: 2.127
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: ffb3d192f2fc6e049af09838c7dad768, type: 3}
       propertyPath: m_LocalRotation.w
@@ -8985,6 +8985,10 @@ PrefabInstance:
       propertyPath: m_ConstrainProportionsScale
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: -8270237889823493819, guid: ffb3d192f2fc6e049af09838c7dad768, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: e0a2d27530b4e6641be4dc4d2e90b7d9, type: 2}
     - target: {fileID: -7791443408913176156, guid: ffb3d192f2fc6e049af09838c7dad768, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
@@ -8993,6 +8997,14 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[1]'
       value: 
       objectReference: {fileID: 2100000, guid: 80ae053fbc075c14da39f434c5b889dc, type: 2}
+    - target: {fileID: -1461304994638716399, guid: ffb3d192f2fc6e049af09838c7dad768, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: e0a2d27530b4e6641be4dc4d2e90b7d9, type: 2}
+    - target: {fileID: -1461304994638716399, guid: ffb3d192f2fc6e049af09838c7dad768, type: 3}
+      propertyPath: 'm_Materials.Array.data[1]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 4df36bd17f7357e479cafbe2490d53e7, type: 2}
     - target: {fileID: -681207621799261623, guid: ffb3d192f2fc6e049af09838c7dad768, type: 3}
       propertyPath: m_LocalPosition.x
       value: -31.098
@@ -9005,6 +9017,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: Laptop
       objectReference: {fileID: 0}
+    - target: {fileID: 2380718651202138832, guid: ffb3d192f2fc6e049af09838c7dad768, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: e0a2d27530b4e6641be4dc4d2e90b7d9, type: 2}
+    - target: {fileID: 7071182760956848314, guid: ffb3d192f2fc6e049af09838c7dad768, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: e0a2d27530b4e6641be4dc4d2e90b7d9, type: 2}
+    - target: {fileID: 8616184511030011274, guid: ffb3d192f2fc6e049af09838c7dad768, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: e0a2d27530b4e6641be4dc4d2e90b7d9, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
