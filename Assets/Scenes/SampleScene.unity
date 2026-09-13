@@ -9387,8 +9387,8 @@ MonoBehaviour:
   _currency: {fileID: 1070549251}
   _panel: {fileID: 1874890622}
   _amountText: {fileID: 2122278990}
-  _headlineText: {fileID: 1929594419}
-  _detailText: {fileID: 972015758}
+  _headlineText: {fileID: 0}
+  _detailText: {fileID: 0}
   _completedHeadline: "SESJA UKO\u0143CZONA"
   _abortedHeadline: SESJA PRZERWANA
   _completedRate: 1
@@ -29765,35 +29765,29 @@ MonoBehaviour:
   _uiActive: {fileID: 2063559177}
   _uiInactive: {fileID: 1235676057}
   _breakObject: {fileID: 252132349}
+  _breakObjectGroup: {fileID: 0}
   _timeTextActive: {fileID: 1448977717}
   _timeTextInactive: {fileID: 1448977717}
   _progressFill: {fileID: 0}
   _smoothProgress: 0
+  _tintRoots:
+  - {fileID: 2063559178}
+  - {fileID: 1235676058}
+  - {fileID: 1448977716}
+  _tintExclude: []
+  _breakColor: {r: 1, g: 1, b: 1, a: 1}
+  _tintFadeDuration: 0.35
   _workTab: {fileID: 219840853}
   _breakTab: {fileID: 1058355044}
-  _workTabGraphic: {fileID: 0}
-  _breakTabGraphic: {fileID: 0}
-  _tabActive: {r: 1, g: 1, b: 1, a: 1}
-  _tabInactive: {r: 1, g: 1, b: 1, a: 1}
-  _workTabText: {fileID: 1448977717}
-  _breakTabText: {fileID: 1448977717}
-  _tabTextActive: {r: 1, g: 1, b: 1, a: 1}
-  _tabTextInactive: {r: 0.55, g: 0.35, b: 0.3, a: 1}
-  _controlIcons:
-  - {fileID: 1594529154}
-  - {fileID: 458814009}
-  - {fileID: 918508003}
-  - {fileID: 166727446}
-  - {fileID: 1332484042}
-  - {fileID: 2069895570}
-  _contentWork: {r: 0.55, g: 0.35, b: 0.3, a: 1}
-  _contentBreak: {r: 1, g: 1, b: 1, a: 1}
-  _tintTimeText: 1
   _stopButton: {fileID: 1093140358}
   _pauseButton: {fileID: 918508005}
   _playButton: {fileID: 2069895572}
   _timeUpButton: {fileID: 166727449}
   _timeDownButton: {fileID: 1332484044}
+  _sfxSource: {fileID: 0}
+  _focusEndClip: {fileID: 0}
+  _breakEndClip: {fileID: 0}
+  _sfxVolume: 0.8
   _workDefault: 25
   _workMin: 1
   _workMax: 120

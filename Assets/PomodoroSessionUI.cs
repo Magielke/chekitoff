@@ -1,9 +1,18 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
 public class PomodoroSessionUI : MonoBehaviour
 {
+    private class TintEntry
+    {
+        public Graphic graphic;
+        public Color baseColor;
+        public Color from, to;
+    }
+
     [SerializeField] private timer_service _timer;
     [SerializeField] private DeskWorkstation _desk;
     [SerializeField] private FocusRewardPopup _rewardPopup;
@@ -12,6 +21,8 @@ public class PomodoroSessionUI : MonoBehaviour
     [SerializeField] private GameObject _uiActive;
     [SerializeField] private GameObject _uiInactive;
     [SerializeField] private GameObject _breakObject;
+    [Tooltip("CanvasGroup na _breakObject - potrzebny do płynnego pojawiania się.")]
+    [SerializeField] private CanvasGroup _breakObjectGroup;
 
     [Header("Wyświetlanie")]
     [SerializeField] private TMP_Text _timeTextActive;
@@ -19,36 +30,36 @@ public class PomodoroSessionUI : MonoBehaviour
     [SerializeField] private Image _progressFill;
     [SerializeField] private bool _smoothProgress = true;
 
+    [Header("Kolory - automatyczne wykrywanie")]
+    [Tooltip("Korzenie, z których zbierane są Graphic. Puste = ten obiekt.")]
+    [SerializeField] private Transform[] _tintRoots;
+    [Tooltip("Pomijane przy zbieraniu - zakładki, tła, elementy o stałym kolorze.")]
+    [SerializeField] private Graphic[] _tintExclude;
+    [Tooltip("Kolor w trybie BREAK. Alpha każdego elementu zostaje własna.")]
+    [SerializeField] private Color _breakColor = Color.white;
+    [SerializeField] private float _tintFadeDuration = 0.35f;
+
     [Header("Zakładki")]
     [SerializeField] private Button _workTab;
     [SerializeField] private Button _breakTab;
-    [SerializeField] private Graphic _workTabGraphic;
-    [SerializeField] private Graphic _breakTabGraphic;
-    [SerializeField] private Color _tabActive = Color.white;
-    [SerializeField] private Color _tabInactive = new Color(1f, 1f, 1f, 0.45f);
-    [SerializeField] private TMP_Text _workTabText;
-    [SerializeField] private TMP_Text _breakTabText;
-    [SerializeField] private Color _tabTextActive = Color.white;
-    [SerializeField] private Color _tabTextInactive = new Color(0.55f, 0.35f, 0.30f);
-
-    [Header("Kolor treści (czas + ikony, bez zakładek)")]
-    [Tooltip("Ikony play, pause, stop, strzałek. Podpinaj Image ikony, nie tło przycisku.")]
-    [SerializeField] private Graphic[] _controlIcons;
-    [SerializeField] private Color _contentWork = new Color(0.55f, 0.35f, 0.30f);
-    [SerializeField] private Color _contentBreak = Color.white;
-    [SerializeField] private bool _tintTimeText = true;
 
     [Header("UI_ACTIVE - timer chodzi")]
-    [Tooltip("UI_TIMER_stop - PRZERYWA sesję. Timer do Idle, wartości do domyślnych, nagroda za przepracowany czas.")]
+    [Tooltip("UI_TIMER_stop - PRZERYWA sesję. Timer do Idle, wartości do domyślnych, nagroda.")]
     [SerializeField] private Button _stopButton;
-    [Tooltip("UI_TIMER_cancel - PAUZUJE. Czas zachowany, UI przechodzi w INACTIVE, bez nagrody.")]
+    [Tooltip("UI_TIMER_cancel - PAUZUJE. Czas zachowany, bez nagrody.")]
     [SerializeField] private Button _pauseButton;
 
     [Header("UI_INACTIVE - ustawianie")]
-    [Tooltip("UI_TIMER_play - start z Idle albo wznowienie po pauzie.")]
     [SerializeField] private Button _playButton;
     [SerializeField] private Button _timeUpButton;
     [SerializeField] private Button _timeDownButton;
+
+    [Header("Dźwięk")]
+    [Tooltip("Osobny AudioSource, nie ten od muzyki.")]
+    [SerializeField] private AudioSource _sfxSource;
+    [SerializeField] private AudioClip _focusEndClip;
+    [SerializeField] private AudioClip _breakEndClip;
+    [SerializeField, Range(0f, 1f)] private float _sfxVolume = 0.8f;
 
     [Header("Zakresy - praca (minuty)")]
     [SerializeField] private int _workDefault = 25;
@@ -71,7 +82,6 @@ public class PomodoroSessionUI : MonoBehaviour
     [SerializeField] private float _repeatRate = 0.08f;
 
     [Header("Dostępność")]
-    [Tooltip("Klawisze działają tylko gdy gracz siedzi przy biurku.")]
     [SerializeField] private bool _requireSeated = true;
 
     [Header("Zachowanie")]
@@ -79,12 +89,18 @@ public class PomodoroSessionUI : MonoBehaviour
     [Tooltip("Czy PRZERWANIE (stop) przyznaje nagrodę za przepracowany czas.")]
     [SerializeField] private bool _rewardOnStop = true;
 
+    private readonly List<TintEntry> _tint = new List<TintEntry>();
+
     private int _work, _brk;
     private bool _breakTabSelected;
     private float _phaseDuration = 1f;
     private bool _lastRunning;
     private float _holdTimer;
     private int _holdDir;
+
+    private float _tintTimer = -1f;
+    private float _breakAlphaFrom, _breakAlphaTo;
+    private bool _sfxPlayedThisPhase;
 
     private void Awake()
     {
@@ -100,6 +116,8 @@ public class PomodoroSessionUI : MonoBehaviour
 
         if (_workTab)  _workTab.onClick.AddListener(() => SelectTab(false));
         if (_breakTab) _breakTab.onClick.AddListener(() => SelectTab(true));
+
+        CaptureBaseColors();
 
         if (_timer)
         {
@@ -130,20 +148,133 @@ public class PomodoroSessionUI : MonoBehaviour
 
         _timer.Configure(_work, _brk);
         RefreshControls();
-        RefreshTabs();
+        ApplyTintInstant();
         RefreshValues();
-        RefreshBreakObject();
+    }
+
+    // ================= KOLORY =================
+
+    /// <summary>Zbiera wszystkie Graphic z korzeni i zapamiętuje kolor bazowy każdego z osobna.</summary>
+    private void CaptureBaseColors()
+    {
+        _tint.Clear();
+
+        Transform[] roots = (_tintRoots != null && _tintRoots.Length > 0)
+            ? _tintRoots
+            : new[] { transform };
+
+        foreach (var root in roots)
+        {
+            if (!root) continue;
+
+            foreach (var g in root.GetComponentsInChildren<Graphic>(true))
+            {
+                if (IsExcluded(g)) continue;
+                if (_tint.Exists(e => e.graphic == g)) continue;   // korzenie mogą się nakładać
+
+                _tint.Add(new TintEntry
+                {
+                    graphic = g,
+                    baseColor = g.color,
+                    from = g.color,
+                    to = g.color
+                });
+            }
+        }
+    }
+
+    private bool IsExcluded(Graphic g)
+    {
+        if (!g) return true;
+        if (g == _progressFill) return true;
+
+        // zakładki mają własny schemat
+        if (_workTab && g.transform.IsChildOf(_workTab.transform)) return true;
+        if (_breakTab && g.transform.IsChildOf(_breakTab.transform)) return true;
+
+        // obiekt przerwy steruje się alphą, nie kolorem
+        if (_breakObject && g.transform.IsChildOf(_breakObject.transform)) return true;
+
+        if (_tintExclude != null)
+            foreach (var e in _tintExclude)
+                if (e == g) return true;
+
+        return false;
+    }
+
+    private void BeginTint(bool toBreak)
+    {
+        foreach (var t in _tint)
+        {
+            if (!t.graphic) continue;
+            t.from = t.graphic.color;
+            t.to = toBreak ? WithAlpha(_breakColor, t.baseColor.a) : t.baseColor;
+        }
+
+        _breakAlphaFrom = _breakObjectGroup ? _breakObjectGroup.alpha : (toBreak ? 0f : 1f);
+        _breakAlphaTo = toBreak ? 1f : 0f;
+
+        if (toBreak && _breakObject) _breakObject.SetActive(true);
+
+        _tintTimer = 0f;
+    }
+
+    private void ApplyTintInstant()
+    {
+        foreach (var t in _tint)
+        {
+            if (!t.graphic) continue;
+            t.to = _breakTabSelected ? WithAlpha(_breakColor, t.baseColor.a) : t.baseColor;
+            t.from = t.to;
+            t.graphic.color = t.to;
+        }
+
+        if (_breakObject) _breakObject.SetActive(_breakTabSelected);
+        if (_breakObjectGroup) _breakObjectGroup.alpha = _breakTabSelected ? 1f : 0f;
+
+        _tintTimer = -1f;
+    }
+
+    private void UpdateTint()
+    {
+        if (_tintTimer < 0f) return;
+
+        _tintTimer += Time.deltaTime;
+        float k = Mathf.Clamp01(_tintTimer / Mathf.Max(0.01f, _tintFadeDuration));
+        float s = Mathf.SmoothStep(0f, 1f, k);
+
+        foreach (var t in _tint)
+        {
+            if (!t.graphic) continue;
+            t.graphic.color = Color.Lerp(t.from, t.to, s);
+        }
+
+        if (_breakObjectGroup)
+            _breakObjectGroup.alpha = Mathf.Lerp(_breakAlphaFrom, _breakAlphaTo, s);
+
+        if (k >= 1f)
+        {
+            _tintTimer = -1f;
+            if (_breakObject && _breakAlphaTo <= 0f) _breakObject.SetActive(false);
+        }
+    }
+
+    private static Color WithAlpha(Color c, float a)
+    {
+        c.a = a;
+        return c;
     }
 
     // ================= AKCJE =================
 
-    /// <summary>START / WZNOWIENIE. Z Idle startuje nową sesję, po pauzie wznawia bieżącą fazę.</summary>
+    /// <summary>START / WZNOWIENIE.</summary>
     private void PlayOrResume()
     {
         if (_timer.phase == PomodoroPhase.Idle)
         {
             _timer.SetLoop(_loop);
             _timer.Configure(_work, _brk);
+            _sfxPlayedThisPhase = false;
 
             if (_breakTabSelected) _timer.StartBreak();
             else                   _timer.StartWork();
@@ -156,7 +287,7 @@ public class PomodoroSessionUI : MonoBehaviour
         RefreshControls();
     }
 
-    /// <summary>PAUZA. Zatrzymuje odliczanie, zachowuje pozostały czas. Bez nagrody.</summary>
+    /// <summary>PAUZA - czas zachowany, bez nagrody.</summary>
     private void PauseSession()
     {
         if (!_timer.IsRunning) return;
@@ -165,7 +296,7 @@ public class PomodoroSessionUI : MonoBehaviour
         RefreshControls();
     }
 
-    /// <summary>PRZERWANIE. Kończy sesję, resetuje wartości do domyślnych. Nagroda wg _rewardOnStop.</summary>
+    /// <summary>PRZERWANIE - koniec sesji, reset wartości, nagroda wg _rewardOnStop.</summary>
     private void StopSession()
     {
         if (_timer.phase == PomodoroPhase.Idle) return;
@@ -176,16 +307,17 @@ public class PomodoroSessionUI : MonoBehaviour
 
         _work = _workDefault;
         _brk = _breakDefault;
+
+        bool wasBreak = _breakTabSelected;
         _breakTabSelected = false;
         _timer.Configure(_work, _brk);
 
         RefreshControls();
-        RefreshTabs();
+        if (wasBreak) BeginTint(false);
         RefreshValues();
-        RefreshBreakObject();
     }
 
-    // ================= zakładki i kolory =================
+    // ================= ZAKŁADKI =================
 
     private void SelectTab(bool breakTab)
     {
@@ -198,6 +330,8 @@ public class PomodoroSessionUI : MonoBehaviour
             else if (!breakTab && _timer.phase != PomodoroPhase.Work) _timer.StartWork();
             return;
         }
+
+        bool changed = _breakTabSelected != breakTab;
 
         // pauza w trakcie fazy - przełącz fazę, zostań zapauzowany
         if (_timer.phase != PomodoroPhase.Idle)
@@ -216,75 +350,32 @@ public class PomodoroSessionUI : MonoBehaviour
                 _timer.Pause();
             }
 
-            RefreshTabs();
+            if (changed) BeginTint(breakTab);
             RefreshValues();
-            RefreshBreakObject();
             return;
         }
 
         // Idle - zakładka wybiera co edytujemy i czym wystartuje sesja
         _breakTabSelected = breakTab;
-        RefreshTabs();
+        if (changed) BeginTint(breakTab);
         RefreshValues();
-        RefreshBreakObject();
     }
 
-    private void RefreshTabs()
-    {
-        bool work = !_breakTabSelected;
-
-        if (_workTabGraphic)  _workTabGraphic.color  = work ? _tabActive : _tabInactive;
-        if (_breakTabGraphic) _breakTabGraphic.color = work ? _tabInactive : _tabActive;
-
-        if (_workTabText)  _workTabText.color  = work ? _tabTextActive : _tabTextInactive;
-        if (_breakTabText) _breakTabText.color = work ? _tabTextInactive : _tabTextActive;
-
-        RefreshContentColor(work);
-    }
-
-    /// <summary>Kolor czasu i ikon sterujących - zakładki mają własny schemat.</summary>
-    private void RefreshContentColor(bool work)
-    {
-        Color c = work ? _contentWork : _contentBreak;
-
-        if (_tintTimeText)
-        {
-            if (_timeTextActive)   _timeTextActive.color = c;
-            if (_timeTextInactive) _timeTextInactive.color = c;
-        }
-
-        if (_controlIcons == null) return;
-        foreach (var g in _controlIcons)
-            if (g) g.color = c;
-    }
-
-    private void RefreshBreakObject()
-    {
-        if (!_breakObject) return;
-
-        bool onBreak = _timer.IsRunning
-            ? _timer.phase == PomodoroPhase.Break
-            : _breakTabSelected;
-
-        _breakObject.SetActive(onBreak);
-    }
-
-    // ================= wartości =================
+    // ================= WARTOŚCI =================
 
     private void Step(int dir)
     {
         bool midPhase = _timer.phase != PomodoroPhase.Idle;
 
         if (_breakTabSelected)
-            _brk = Mathf.Clamp(_brk + dir * _breakStepSize, _breakMin, _breakMax);
+            _brk = StepValue(_brk, dir, _breakStepSize, _breakMin, _breakMax);
         else
-            _work = Mathf.Clamp(_work + dir * _workStepSize, _workMin, _workMax);
+            _work = StepValue(_work, dir, _workStepSize, _workMin, _workMax);
 
         _timer.Configure(_work, _brk);
 
         if (midPhase)
         {
-            // przeładowanie fazy nową długością - to nie jest przerwanie sesji
             if (_rewardPopup) _rewardPopup.SuppressNext();
 
             if (_breakTabSelected) _timer.StartBreak();
@@ -293,6 +384,25 @@ public class PomodoroSessionUI : MonoBehaviour
         }
 
         RefreshValues();
+    }
+
+    /// <summary>Snapuje do wielokrotności kroku: przy min=1, step=5 daje 1 → 5 → 10.</summary>
+    private int StepValue(int current, int dir, int step, int min, int max)
+    {
+        if (step <= 0) step = 1;
+
+        int next;
+        if (dir > 0)
+        {
+            next = ((current / step) + 1) * step;
+        }
+        else
+        {
+            next = ((current - 1) / step) * step;
+            if (next < step) next = min;
+        }
+
+        return Mathf.Clamp(next, min, max);
     }
 
     private void RefreshValues()
@@ -309,11 +419,13 @@ public class PomodoroSessionUI : MonoBehaviour
         _timeTextInactive.text = $"{v:D2}:00";
     }
 
-    // ================= pętla =================
+    // ================= PĘTLA =================
 
     private void Update()
     {
         if (!_timer) return;
+
+        UpdateTint();
 
         if (_timer.IsRunning != _lastRunning) RefreshControls();
 
@@ -364,20 +476,21 @@ public class PomodoroSessionUI : MonoBehaviour
         Step(dir);
     }
 
-    // ================= reakcja na timer =================
+    // ================= REAKCJA NA TIMER =================
 
     private void HandlePhaseChange(PomodoroPhase phase)
     {
         _phaseDuration = Mathf.Max(0.01f, _timer.PhaseDuration);
+        _sfxPlayedThisPhase = false;
 
         if (phase != PomodoroPhase.Idle)
         {
+            bool wasBreak = _breakTabSelected;
             _breakTabSelected = phase == PomodoroPhase.Break;
-            RefreshTabs();
+
+            if (wasBreak != _breakTabSelected) BeginTint(_breakTabSelected);
             RefreshValues();
         }
-
-        RefreshBreakObject();
     }
 
     private void HandleTick(float remaining)
@@ -386,13 +499,23 @@ public class PomodoroSessionUI : MonoBehaviour
 
         if (!_smoothProgress && _progressFill)
             _progressFill.fillAmount = 1f - Mathf.Clamp01(remaining / _phaseDuration);
+
+        if (remaining <= 0f) PlayPhaseEndSfx();
+    }
+
+    private void PlayPhaseEndSfx()
+    {
+        if (_sfxPlayedThisPhase || !_sfxSource) return;
+        _sfxPlayedThisPhase = true;
+
+        AudioClip clip = _timer.phase == PomodoroPhase.Work ? _focusEndClip : _breakEndClip;
+        if (clip) _sfxSource.PlayOneShot(clip, _sfxVolume);
     }
 
     private void HandleFinished()
     {
         RefreshControls();
         RefreshValues();
-        RefreshBreakObject();
     }
 
     private void RefreshControls()
@@ -401,7 +524,5 @@ public class PomodoroSessionUI : MonoBehaviour
         if (_uiActive)   _uiActive.SetActive(_lastRunning);
         if (_uiInactive) _uiInactive.SetActive(!_lastRunning);
         _holdDir = 0;
-
-        RefreshBreakObject();
     }
 }
