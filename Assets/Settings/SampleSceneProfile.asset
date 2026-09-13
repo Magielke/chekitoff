@@ -290,7 +290,7 @@ MonoBehaviour:
     m_Value: 1
   maxSteps:
     m_OverrideState: 1
-    m_Value: 18
+    m_Value: 30
   blurIterations:
     m_OverrideState: 0
     m_Value: 1

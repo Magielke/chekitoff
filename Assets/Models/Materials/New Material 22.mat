@@ -7,12 +7,16 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Floor
+  m_Name: New Material 22
   m_Shader: {fileID: 4800000, guid: 933532a4fcc9baf4fa0491de14d08ed7, type: 3}
-  m_Parent: {fileID: 2100000, guid: 249c3f4843b36fe40953600dd80aaf9a, type: 2}
-  m_ModifiedSerializedProperties: 2
+  m_Parent: {fileID: 2100000, guid: 5ef1f22162f99e348b1dfcc2595b72df, type: 2}
+  m_ModifiedSerializedProperties: 26
   m_ValidKeywords: []
-  m_InvalidKeywords: []
+  m_InvalidKeywords:
+  - _EMISSIVE_SIMPLE
+  - _IS_CLIPPING_OFF
+  - _IS_OUTLINE_CLIPPING_NO
+  - _OUTLINE_NML
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -22,18 +26,25 @@ Material:
     RenderType: Opaque
   disabledShaderPasses:
   - MOTIONVECTORS
+  - SRPDEFAULTUNLIT
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs: []
     m_Ints: []
-    m_Floats: []
+    m_Floats:
+    - _Cull: 2
+    - _EnvironmentReflections: 1
+    - _Metallic: 1
+    - _QueueOffset: 0
+    - _Smoothness: 0.5
     m_Colors:
-    - _BaseColor: {r: 0.45911938, g: 0.32243443, b: 0.22089702, a: 1}
-    - _Color: {r: 0.45911932, g: 0.3224344, b: 0.22089699, a: 1}
+    - _BaseColor: {r: 1, g: 0.9967726, b: 0.995283, a: 1}
+    - _Color: {r: 1, g: 0.9967726, b: 0.99528295, a: 1}
+    - _EmissionColor: {r: 0.14465404, g: 0.14465404, b: 0.14465404, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
---- !u!114 &3686465582762139810
+--- !u!114 &8865424895401388629
 MonoBehaviour:
   m_ObjectHideFlags: 11
   m_CorrespondingSourceObject: {fileID: 0}
