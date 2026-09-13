@@ -731,7 +731,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 62af748b8e58eb7429f3fe58b56222a3, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 24.515575
+      value: 24.461
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 62af748b8e58eb7429f3fe58b56222a3, type: 3}
       propertyPath: m_LocalPosition.y
@@ -739,7 +739,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 62af748b8e58eb7429f3fe58b56222a3, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.5008054
+      value: 0.419
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 62af748b8e58eb7429f3fe58b56222a3, type: 3}
       propertyPath: m_LocalRotation.w
@@ -772,7 +772,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 62af748b8e58eb7429f3fe58b56222a3, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 37ff8abd04532da41b67503b23825ff2, type: 2}
+      objectReference: {fileID: 2100000, guid: 90f1009a1a9fc0a40b853e8cbd9a677a, type: 2}
     - target: {fileID: 919132149155446097, guid: 62af748b8e58eb7429f3fe58b56222a3, type: 3}
       propertyPath: m_Name
       value: Lamp-sphere
