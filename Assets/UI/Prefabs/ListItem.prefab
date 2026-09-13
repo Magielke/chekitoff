@@ -1119,6 +1119,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _checkboxButton: {fileID: 8361374481922035562}
+  _checkboxCheckedButton: {fileID: 0}
   _checkedBox: {fileID: 5235448383020226921}
   _uncheckedBox: {fileID: 3655872320999807043}
   _textNormal: {fileID: 6753207667000436620}
