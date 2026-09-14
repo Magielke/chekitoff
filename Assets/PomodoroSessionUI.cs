@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -33,7 +32,7 @@ public class PomodoroSessionUI : MonoBehaviour
     [Header("Kolory - automatyczne wykrywanie")]
     [Tooltip("Korzenie, z których zbierane są Graphic. Puste = ten obiekt.")]
     [SerializeField] private Transform[] _tintRoots;
-    [Tooltip("Pomijane przy zbieraniu - zakładki, tła, elementy o stałym kolorze.")]
+    [Tooltip("Pomijane przy zbieraniu - tła, elementy o stałym kolorze.")]
     [SerializeField] private Graphic[] _tintExclude;
     [Tooltip("Kolor w trybie BREAK. Alpha każdego elementu zostaje własna.")]
     [SerializeField] private Color _breakColor = Color.white;
@@ -57,8 +56,12 @@ public class PomodoroSessionUI : MonoBehaviour
     [Header("Dźwięk")]
     [Tooltip("Osobny AudioSource, nie ten od muzyki.")]
     [SerializeField] private AudioSource _sfxSource;
+    [Tooltip("Naturalne zakończenie fazy pracy.")]
     [SerializeField] private AudioClip _focusEndClip;
+    [Tooltip("Naturalne zakończenie przerwy.")]
     [SerializeField] private AudioClip _breakEndClip;
+    [Tooltip("Ping przy ręcznym przerwaniu sesji (stop).")]
+    [SerializeField] private AudioClip _sessionCancelClip;
     [SerializeField, Range(0f, 1f)] private float _sfxVolume = 0.8f;
 
     [Header("Zakresy - praca (minuty)")]
@@ -154,7 +157,6 @@ public class PomodoroSessionUI : MonoBehaviour
 
     // ================= KOLORY =================
 
-    /// <summary>Zbiera wszystkie Graphic z korzeni i zapamiętuje kolor bazowy każdego z osobna.</summary>
     private void CaptureBaseColors()
     {
         _tint.Clear();
@@ -170,7 +172,7 @@ public class PomodoroSessionUI : MonoBehaviour
             foreach (var g in root.GetComponentsInChildren<Graphic>(true))
             {
                 if (IsExcluded(g)) continue;
-                if (_tint.Exists(e => e.graphic == g)) continue;   // korzenie mogą się nakładać
+                if (_tint.Exists(e => e.graphic == g)) continue;
 
                 _tint.Add(new TintEntry
                 {
@@ -188,11 +190,8 @@ public class PomodoroSessionUI : MonoBehaviour
         if (!g) return true;
         if (g == _progressFill) return true;
 
-        // zakładki mają własny schemat
         if (_workTab && g.transform.IsChildOf(_workTab.transform)) return true;
         if (_breakTab && g.transform.IsChildOf(_breakTab.transform)) return true;
-
-        // obiekt przerwy steruje się alphą, nie kolorem
         if (_breakObject && g.transform.IsChildOf(_breakObject.transform)) return true;
 
         if (_tintExclude != null)
@@ -265,9 +264,23 @@ public class PomodoroSessionUI : MonoBehaviour
         return c;
     }
 
+    // ================= DŹWIĘK =================
+
+    private void PlaySfx(AudioClip clip)
+    {
+        if (_sfxSource && clip) _sfxSource.PlayOneShot(clip, _sfxVolume);
+    }
+
+    private void PlayPhaseEndSfx()
+    {
+        if (_sfxPlayedThisPhase) return;
+        _sfxPlayedThisPhase = true;
+
+        PlaySfx(_timer.phase == PomodoroPhase.Work ? _focusEndClip : _breakEndClip);
+    }
+
     // ================= AKCJE =================
 
-    /// <summary>START / WZNOWIENIE.</summary>
     private void PlayOrResume()
     {
         if (_timer.phase == PomodoroPhase.Idle)
@@ -287,7 +300,6 @@ public class PomodoroSessionUI : MonoBehaviour
         RefreshControls();
     }
 
-    /// <summary>PAUZA - czas zachowany, bez nagrody.</summary>
     private void PauseSession()
     {
         if (!_timer.IsRunning) return;
@@ -296,10 +308,11 @@ public class PomodoroSessionUI : MonoBehaviour
         RefreshControls();
     }
 
-    /// <summary>PRZERWANIE - koniec sesji, reset wartości, nagroda wg _rewardOnStop.</summary>
     private void StopSession()
     {
         if (_timer.phase == PomodoroPhase.Idle) return;
+
+        PlaySfx(_sessionCancelClip);
 
         if (!_rewardOnStop && _rewardPopup) _rewardPopup.SuppressNext();
 
@@ -323,7 +336,6 @@ public class PomodoroSessionUI : MonoBehaviour
     {
         _holdDir = 0;
 
-        // timer chodzi - skip do wybranej fazy
         if (_timer.IsRunning)
         {
             if (breakTab && _timer.phase != PomodoroPhase.Break) _timer.StartBreak();
@@ -333,7 +345,6 @@ public class PomodoroSessionUI : MonoBehaviour
 
         bool changed = _breakTabSelected != breakTab;
 
-        // pauza w trakcie fazy - przełącz fazę, zostań zapauzowany
         if (_timer.phase != PomodoroPhase.Idle)
         {
             _breakTabSelected = breakTab;
@@ -355,7 +366,6 @@ public class PomodoroSessionUI : MonoBehaviour
             return;
         }
 
-        // Idle - zakładka wybiera co edytujemy i czym wystartuje sesja
         _breakTabSelected = breakTab;
         if (changed) BeginTint(breakTab);
         RefreshValues();
@@ -458,7 +468,6 @@ public class PomodoroSessionUI : MonoBehaviour
         if (Input.GetKeyDown(_confirmKey)) PlayOrResume();
     }
 
-    /// <summary>Klawisze działają tylko gdy start timera jest realnie możliwy.</summary>
     private bool KeyboardAvailable()
     {
         if (TodoItemUI.AnyEditing) return false;
@@ -501,15 +510,6 @@ public class PomodoroSessionUI : MonoBehaviour
             _progressFill.fillAmount = 1f - Mathf.Clamp01(remaining / _phaseDuration);
 
         if (remaining <= 0f) PlayPhaseEndSfx();
-    }
-
-    private void PlayPhaseEndSfx()
-    {
-        if (_sfxPlayedThisPhase || !_sfxSource) return;
-        _sfxPlayedThisPhase = true;
-
-        AudioClip clip = _timer.phase == PomodoroPhase.Work ? _focusEndClip : _breakEndClip;
-        if (clip) _sfxSource.PlayOneShot(clip, _sfxVolume);
     }
 
     private void HandleFinished()
