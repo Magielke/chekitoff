@@ -10,12 +10,15 @@ public class FocusRewardPopup : MonoBehaviour
     [SerializeField] private CurrencyService _currency;
     [SerializeField] private PanelReveal _panel;
 
+    [Header("Nagłówki - obiekty przełączane")]
+    [Tooltip("Obiekt widoczny gdy sesja została ukończona.")]
+    [SerializeField] private GameObject _completedObject;
+    [Tooltip("Obiekt widoczny gdy sesja została przerwana.")]
+    [SerializeField] private GameObject _abortedObject;
+
     [Header("Teksty")]
     [SerializeField] private TMP_Text _amountText;
-    [SerializeField] private TMP_Text _headlineText;
     [SerializeField] private TMP_Text _detailText;
-    [SerializeField] private string _completedHeadline = "SESJA UKOŃCZONA";
-    [SerializeField] private string _abortedHeadline = "SESJA PRZERWANA";
 
     [Header("Przelicznik")]
     [SerializeField] private float _completedRate = 1.0f;
@@ -45,6 +48,10 @@ public class FocusRewardPopup : MonoBehaviour
     private void Start()
     {
         IsOpen = false;
+
+        if (_completedObject) _completedObject.SetActive(false);
+        if (_abortedObject)   _abortedObject.SetActive(false);
+
         if (_panel) _panel.Hide();
     }
 
@@ -114,14 +121,16 @@ public class FocusRewardPopup : MonoBehaviour
 
     private void ShowPopup(int amount, int minutes, bool completed)
     {
-        if (_headlineText) _headlineText.text = completed ? _completedHeadline : _abortedHeadline;
-        if (_amountText)   _amountText.text = $"+{amount}";
+        if (_completedObject) _completedObject.SetActive(completed);
+        if (_abortedObject)   _abortedObject.SetActive(!completed);
+
+        if (_amountText) _amountText.text = $"+{amount}";
 
         if (_detailText)
         {
             _detailText.text = completed
                 ? $"{minutes} minutes of focus"
-                : $"{minutes} minuntes of focus x {_abortedRate:0.##}";
+                : $"{minutes} minutes of focus x {_abortedRate:0.##}";
         }
 
         IsOpen = true;
@@ -137,6 +146,9 @@ public class FocusRewardPopup : MonoBehaviour
     {
         IsOpen = false;
         SetGameInput(true);
+
+        if (_completedObject) _completedObject.SetActive(false);
+        if (_abortedObject)   _abortedObject.SetActive(false);
 
         if (_panel) _panel.Hide();
     }
