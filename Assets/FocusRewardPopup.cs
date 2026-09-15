@@ -120,8 +120,8 @@ public class FocusRewardPopup : MonoBehaviour
         if (_detailText)
         {
             _detailText.text = completed
-                ? $"{minutes} min skupienia"
-                : $"{minutes} min skupienia x {_abortedRate:0.##}";
+                ? $"{minutes} minutes of focus"
+                : $"{minutes} minuntes of focus x {_abortedRate:0.##}";
         }
 
         IsOpen = true;
