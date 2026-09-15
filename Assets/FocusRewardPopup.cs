@@ -128,9 +128,10 @@ public class FocusRewardPopup : MonoBehaviour
 
         if (_detailText)
         {
+            string unit = Minutes(minutes);
             _detailText.text = completed
-                ? $"{minutes} minutes of focus"
-                : $"{minutes} minutes of focus x {_abortedRate:0.##}";
+                ? $"{minutes} {unit} of focus"
+                : $"{minutes} {unit} of focus x {_abortedRate:0.##}";
         }
 
         IsOpen = true;
@@ -141,6 +142,8 @@ public class FocusRewardPopup : MonoBehaviour
 
         if (_panel) _panel.Show();
     }
+
+    private static string Minutes(int n) => n == 1 ? "minute" : "minutes";
 
     public void Close()
     {
