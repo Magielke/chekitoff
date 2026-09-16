@@ -118,7 +118,7 @@ public class DeskWorkstation : MonoBehaviour
 
         SetCursor(false);
         SetAnimatorSitting(false);
-        yield return new WaitForSeconds(_standDuration);
+        //yield return new WaitForSeconds(_standDuration);
 
         if (_movedToSeat && _playerRoot)
         {
